@@ -1,0 +1,168 @@
+{
+  "name": "verifiche-vscode",
+  "displayName": "Verifiche",
+  "description": "Verifiche ed esercizi Markdown/YAML nell'editor, con anteprima e PDF.",
+  "version": "0.1.0",
+  "publisher": "fornaeffe",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fornaeffe/verifiche-vscode.git"
+  },
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:yaml",
+    "onLanguage:markdown"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    }
+  },
+  "scripts": {
+    "build": "tsc --noEmit && node tools/build.mjs",
+    "test": "tsx --test test/*.test.ts",
+    "test:integration": "node tools/integration.mjs",
+    "cli": "tsx src/cli.ts",
+    "package": "npm run build && vsce package --no-dependencies",
+    "vscode:prepublish": "npm run build"
+  },
+  "dependencies": {
+    "katex": "^0.16.22",
+    "markdown-it": "^14.1.0",
+    "playwright": "^1.55.0",
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.7",
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "1.100.0",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.25.0",
+    "prettier": "^3.9.6",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "verifiche.template",
+        "title": "Verifiche: Inserisci template"
+      },
+      {
+        "command": "verifiche.preview",
+        "title": "Verifiche: Apri anteprima",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "verifiche.addBlock",
+        "title": "Verifiche: Inserisci blocco"
+      },
+      {
+        "command": "verifiche.addTrace",
+        "title": "Verifiche: Aggiungi traccia"
+      },
+      {
+        "command": "verifiche.deleteTrace",
+        "title": "Verifiche: Elimina traccia"
+      },
+      {
+        "command": "verifiche.renameTrace",
+        "title": "Verifiche: Rinomina traccia"
+      },
+      {
+        "command": "verifiche.duplicateTrace",
+        "title": "Verifiche: Duplica traccia"
+      },
+      {
+        "command": "verifiche.chooseVariant",
+        "title": "Verifiche: Scegli variante"
+      },
+      {
+        "command": "verifiche.addVariant",
+        "title": "Verifiche: Aggiungi variante"
+      },
+      {
+        "command": "verifiche.duplicateVariant",
+        "title": "Verifiche: Duplica variante"
+      },
+      {
+        "command": "verifiche.renameVariant",
+        "title": "Verifiche: Rinomina variante"
+      },
+      {
+        "command": "verifiche.export",
+        "title": "Verifiche: Esporta traccia PDF"
+      },
+      {
+        "command": "verifiche.exportAll",
+        "title": "Verifiche: Esporta tutti i PDF"
+      },
+      {
+        "command": "verifiche.installBrowser",
+        "title": "Verifiche: Installa Chromium per i PDF"
+      },
+      {
+        "command": "verifiche.validate",
+        "title": "Verifiche: Controlla tutti i contenuti"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "verifiche.preview",
+          "when": "verifiche.document",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "verifiche.addBlock",
+          "when": "verifiche.kind == verifiche",
+          "group": "verifiche"
+        },
+        {
+          "command": "verifiche.chooseVariant",
+          "when": "verifiche.kind == verifiche",
+          "group": "verifiche"
+        },
+        {
+          "command": "verifiche.preview",
+          "when": "verifiche.document",
+          "group": "verifiche"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "verifiche.addBlock",
+        "key": "ctrl+alt+insert",
+        "mac": "cmd+alt+insert",
+        "when": "editorTextFocus && verifiche.kind == verifiche"
+      }
+    ],
+    "configuration": {
+      "title": "Verifiche",
+      "properties": {
+        "verifiche.contentDirectory": {
+          "type": "string",
+          "default": "contenuti",
+          "description": "Cartella dei contenuti relativa alla radice del workspace."
+        },
+        "verifiche.autoPreview": {
+          "type": "boolean",
+          "default": true,
+          "description": "Apri l'anteprima quando si attiva una verifica o un esercizio."
+        }
+      }
+    }
+  }
+}

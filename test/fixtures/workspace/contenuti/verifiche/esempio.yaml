@@ -1,0 +1,15 @@
+titolo: Verifica dimostrativa
+tracce:
+  - id: prova
+    pubblica: true
+  - id: "1"
+blocchi:
+  - gruppo:
+      istruzioni: Rispondi alle domande.
+      esercizi:
+        - esercizio:
+            id: scienze/esempio
+            punti: 2
+            versioni:
+              prova: base
+              "1": seconda

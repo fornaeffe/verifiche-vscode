@@ -1,0 +1,250 @@
+body {
+  width: 194mm;
+
+  font-family: "PT Sans", Verdana, Arial, sans-serif;
+  font-size: 12pt;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.data {
+  padding-right: 2cm;
+}
+
+h1 {
+  text-align: center;
+}
+
+.punti {
+  margin-left: 3mm;
+  float: right;
+  font-style: normal;
+}
+
+.istruzioni {
+  margin-top: 5mm;
+  font-style: italic;
+  page-break-inside: avoid;
+  page-break-after: avoid;
+}
+
+.a,
+.sm {
+  margin-top: 3.5mm;
+  page-break-inside: avoid;
+}
+
+ol,
+ul {
+  display: inline;
+  padding-inline-start: 0;
+}
+
+li {
+  margin-left: 6mm;
+}
+
+/* Vero Falso */
+
+.vf {
+  margin-top: 5mm;
+  font-style: italic;
+  page-break-inside: avoid;
+}
+
+.vf-grid {
+  margin-top: 2mm;
+  font-style: normal;
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.vf-testo {
+  grid-column: 1;
+  margin-bottom: 1.5mm;
+}
+
+.vf-etichetta {
+  grid-column: 2;
+}
+
+.vf-etichetta > span {
+  margin-left: 3mm;
+  margin-right: 3mm;
+}
+
+/* Etichettare */
+
+/*
+.etichettare {
+    font-style: italic;
+}
+
+.etichettare-grid {
+    display: grid;
+    grid-template-columns: auto auto;
+
+    font-style: normal;
+}
+
+.etichettare-item {
+    grid-column: 1;
+}
+
+.etichetta {
+    grid-column: 2;
+}
+*/
+
+/* Completamento */
+
+.completamento {
+  line-height: 1.8em;
+}
+
+.elenco {
+  font-style: italic;
+  line-height: 1em;
+}
+
+/* Immagini  */
+
+img {
+  margin-top: 1mm;
+  max-width: 100%;
+  display: block;
+}
+
+/* Altro  */
+
+.spazio-dopo {
+  margin-bottom: 15mm;
+}
+
+.elenco-spaziato > li {
+  margin-top: 1.75mm;
+  margin-bottom: 1.75mm;
+}
+
+.flex {
+  display: flex;
+  flex-direction: row;
+}
+
+.nascosto {
+  display: none;
+}
+
+.page-break {
+  page-break-after: always;
+}
+
+@page {
+  size: 210mm 297mm;
+  margin: 8mm;
+}
+
+/* Motore Markdown: numerazione continua anche attraverso i gruppi. */
+body {
+  margin: 8mm auto;
+  width: auto;
+  max-width: 194mm;
+}
+.esercizio {
+  position: relative;
+  margin: 3.5mm 0 3.5mm 7mm;
+  break-inside: avoid;
+  display: flow-root;
+}
+.numero {
+  position: absolute;
+  left: -7mm;
+}
+.esercizio p:first-of-type {
+  margin-top: 0;
+}
+.esercizio p:last-child {
+  margin-bottom: 0;
+}
+ol,
+ul {
+  display: block;
+  padding-left: 6mm;
+}
+li {
+  margin-left: 0;
+}
+.opzioni {
+  margin: 1mm 0;
+}
+.opzioni li {
+  padding-right: 2mm;
+  margin-bottom: 1mm;
+}
+.risposta {
+  float: right;
+  white-space: nowrap;
+  margin-left: 5mm;
+}
+.vf .opzioni li,
+.etichettare .opzioni li {
+  display: list-item;
+  min-height: 6mm;
+}
+.traccia {
+  text-align: center;
+  margin-bottom: 5mm;
+}
+.istruzioni {
+  display: flow-root;
+}
+.istruzioni p {
+  margin: 0;
+}
+.page-break {
+  break-after: page;
+}
+footer {
+  margin-top: 6mm;
+  font-size: 10pt;
+  text-align: right;
+}
+.header {
+  font-size: 10pt;
+  gap: 4mm;
+}
+@media print {
+  body {
+    margin: 0;
+    max-width: none;
+  }
+}
+
+@media screen {
+  body {
+    width: 194mm;
+    max-width: none;
+  }
+}
+@media print {
+  body {
+    zoom: 1 !important;
+  }
+}
+
+.vf .opzioni li,
+.etichettare .opzioni li {
+  position: relative;
+  padding-right: 28mm;
+}
+.risposta {
+  position: absolute;
+  right: 0;
+  top: 0;
+  float: none;
+}
