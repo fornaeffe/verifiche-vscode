@@ -133,26 +133,47 @@ export async function run() {
   );
   if (process.env.VERIFICHE_UI_TEST) {
     const temp = process.env.VERIFICHE_UI_TEST;
+    const waitForUi = async (name: string) => {
+      const deadline = Date.now() + 30000;
+      let result = "";
+      while (Date.now() < deadline) {
+        try {
+          result = await fs.readFile(path.join(temp, name), "utf8");
+          break;
+        } catch {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+      }
+      assert.equal(result, "ok");
+    };
+    const visibleCopies = () =>
+      vscode.window.visibleTextEditors.filter(
+        (editor) => editor.document.uri.toString() === doc.uri.toString(),
+      ).length;
+
     await vscode.window.showTextDocument(doc);
+    assert.equal(visibleCopies(), 1);
     await vscode.commands.executeCommand(
       chooseVariant.command.command,
       ...(chooseVariant.command.arguments ?? []),
     );
-    await fs.writeFile(path.join(temp, "ui-ready"), "ready");
-    const deadline = Date.now() + 30000;
-    let result = "";
-    while (Date.now() < deadline) {
-      try {
-        result = await fs.readFile(path.join(temp, "ui-done"), "utf8");
-        break;
-      } catch {
-        await new Promise((r) => setTimeout(r, 100));
-      }
-    }
-    assert.equal(result, "ok");
+    await fs.writeFile(path.join(temp, "ui-ready-cancel"), "ready");
+    await waitForUi("ui-done-cancel");
+    assert.equal(doc.getText(), original);
+    assert.equal(visibleCopies(), 1);
+    assert.match(api.preview.panel.webview.html, /Esporta PDF/);
+
+    await vscode.commands.executeCommand(
+      chooseVariant.command.command,
+      ...(chooseVariant.command.arguments ?? []),
+    );
+    await fs.writeFile(path.join(temp, "ui-ready-select"), "ready");
+    await waitForUi("ui-done-select");
     for (let i = 0; i < 50 && !/prova: seconda/.test(doc.getText()); i++)
-      await new Promise((r) => setTimeout(r, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     assert.match(doc.getText(), /prova: seconda/);
+    assert.equal(visibleCopies(), 1);
+    assert.match(api.preview.panel.webview.html, /Esporta PDF/);
   }
   const old = definitions![0].uri,
     next = vscode.Uri.file(
@@ -168,6 +189,6 @@ export async function run() {
   await vscode.workspace.fs.stat(old);
   api.preview.dispose();
   console.log(
-    "PASS: activation, reduced CodeLens, contextual Code Actions, trace edit/undo, definition, template, focus preview, exercise drop/undo, image paste, rename references",
+    "PASS: activation, reduced CodeLens, contextual Code Actions, picker cancel/select without duplicate editors, trace edit/undo, definition, template, focus preview, exercise drop/undo, image paste, rename references",
   );
 }

@@ -52,15 +52,14 @@ try {
       const deadline = Date.now() + 90000;
       while (Date.now() < deadline) {
         try {
-          await fs.access(path.join(temp, "ui-ready"));
+          await fs.access(path.join(temp, "ui-ready-cancel"));
           break;
         } catch {
           await new Promise((r) => setTimeout(r, 200));
         }
       }
-      await fs.access(path.join(temp, "ui-ready"));
+      await fs.access(path.join(temp, "ui-ready-cancel"));
       browser = await chromium.connectOverCDP("http://127.0.0.1:" + port);
-      let target;
       const page = browser.contexts()[0].pages()[0];
       const targets = await fetch(
         "http://127.0.0.1:" + port + "/json/list",
@@ -70,22 +69,43 @@ try {
       );
       if (!webview) throw Error("Webview non trovata");
       cdp = await connect(webview.webSocketDebuggerUrl);
-      for (let i = 0; i < 100 && target === undefined; i++) {
-        for (const contextId of cdp.contexts) {
-          const result = await cdp
-            .send("Runtime.evaluate", {
-              contextId,
-              expression: `!!document.querySelector('button[data-variant="seconda"]')`,
-              returnByValue: true,
-            })
-            .catch(() => undefined);
-          if (result?.result?.value) {
-            target = contextId;
-            break;
+      const findTarget = async (selector) => {
+        for (let i = 0; i < 100; i++) {
+          for (const contextId of cdp.contexts) {
+            const result = await cdp
+              .send("Runtime.evaluate", {
+                contextId,
+                expression: `!!document.querySelector(${JSON.stringify(selector)})`,
+                returnByValue: true,
+              })
+              .catch(() => undefined);
+            if (result?.result?.value) return contextId;
           }
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
-        if (target === undefined) await new Promise((r) => setTimeout(r, 100));
+      };
+
+      let target = await findTarget("#cancel");
+      if (!target) throw Error("Pulsante Annulla non visibile nella webview");
+      await cdp.send("Runtime.evaluate", {
+        contextId: target,
+        expression: `document.querySelector('#cancel').click()`,
+      });
+      if (!(await findTarget("#pdf")))
+        throw Error("Anteprima verifica non ripristinata dopo Annulla");
+      await fs.writeFile(path.join(temp, "ui-done-cancel"), "ok");
+
+      const selectDeadline = Date.now() + 30000;
+      while (Date.now() < selectDeadline) {
+        try {
+          await fs.access(path.join(temp, "ui-ready-select"));
+          break;
+        } catch {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
       }
+      await fs.access(path.join(temp, "ui-ready-select"));
+      target = await findTarget('button[data-variant="seconda"]');
       await fs.mkdir("test-results", { recursive: true });
       if (!target) {
         for (const [i, p] of browser.contexts()[0].pages().entries()) {
@@ -131,9 +151,14 @@ try {
         contextId: target,
         expression: `document.querySelector('button[data-variant="seconda"]').click()`,
       });
-      await fs.writeFile(path.join(temp, "ui-done"), "ok");
+      if (!(await findTarget("#pdf")))
+        throw Error("Anteprima verifica non ripristinata dopo la scelta");
+      await fs.writeFile(path.join(temp, "ui-done-select"), "ok");
     } catch (e) {
-      await fs.writeFile(path.join(temp, "ui-done"), String(e));
+      await Promise.all([
+        fs.writeFile(path.join(temp, "ui-done-cancel"), String(e)),
+        fs.writeFile(path.join(temp, "ui-done-select"), String(e)),
+      ]);
       throw e;
     } finally {
       cdp?.close();

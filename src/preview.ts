@@ -72,7 +72,6 @@ export class Preview {
         else if (m.type === "cancel" && this.picker) {
           const doc = this.picker.doc;
           this.picker = undefined;
-          await vscode.window.showTextDocument(doc, { preserveFocus: false });
           await this.show(doc, true);
         } else if (m.type === "variant" && this.picker) {
           const p = this.picker;
@@ -94,7 +93,6 @@ export class Preview {
           ];
           await apply(p.doc, p.version, edits);
           this.picker = undefined;
-          await vscode.window.showTextDocument(p.doc);
           await this.show(p.doc, true);
         }
       } catch (e) {

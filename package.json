@@ -2,7 +2,7 @@
   "name": "verifiche-vscode",
   "displayName": "Verifiche",
   "description": "Verifiche ed esercizi Markdown/YAML nell'editor, con anteprima e PDF.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "fornaeffe",
   "license": "GPL-3.0-only",
   "repository": {
