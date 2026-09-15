@@ -34,13 +34,19 @@ nei workspace attendibili; dopo il setup funziona offline.
    oppure **Nuovo esercizio…** e scegliere nome e cartella nella finestra di salvataggio.
 3. Ctrl+click/F12 sul percorso apre l'esercizio. Le modifiche non salvate partecipano
    all'anteprima. Salvare normalmente con Ctrl+S o con l'Auto Save di VS Code.
-4. **Scegli variante…** sul blocco apre il selettore: scegliere la traccia e poi una
-   scheda con il contenuto renderizzato. **Nessuna assegnazione** omette l'esercizio.
+4. Portare il cursore sulla riga della traccia desiderata dentro `versioni:` e aprire
+   la lampadina: **Scegli variante per la traccia …** mostra direttamente le schede
+   renderizzate. **Nessuna assegnazione** omette l'esercizio.
+
+Le azioni **Elimina/Rinomina/Duplica traccia** compaiono nella lampadina quando il
+cursore è nel blocco della traccia. I CodeLens restano riservati agli inserimenti,
+per mantenere leggibile il documento.
 
 La scorciatoia `Ctrl+Alt+Insert` (`Cmd+Alt+Insert` su macOS) apre l'inserimento blocco.
-Le azioni sono disponibili anche da menu contestuale, lampadina e Command Palette
-cercando **Verifiche**. Ricerca, duplicazione dei file, cartelle e organizzazione
-sono quelle native di VS Code. Per cambiare l'ordine dei blocchi usare il testo YAML.
+I comandi di inserimento sono disponibili anche dai CodeLens, dal menu contestuale e
+dalla Command Palette cercando **Verifiche**. Ricerca, duplicazione dei file, cartelle
+e organizzazione sono quelle native di VS Code. Per cambiare l'ordine dei blocchi
+usare il testo YAML.
 
 Un esercizio esistente inserito nella verifica riceve le varianti non vuote in ordine:
 prima la traccia pubblica, poi le altre. Non vengono riciclate se le tracce sono più

@@ -21,6 +21,41 @@ export async function run() {
     doc.uri,
   );
   assert.ok(lenses?.some((l) => l.command?.command === "verifiche.addTrace"));
+  for (const removed of [
+    "verifiche.deleteTrace",
+    "verifiche.renameTrace",
+    "verifiche.duplicateTrace",
+    "verifiche.chooseVariant",
+  ])
+    assert.ok(!lenses?.some((l) => l.command?.command === removed));
+
+  const actionsAt = (offset: number) => {
+    const position = doc.positionAt(offset);
+    return vscode.commands.executeCommand<vscode.CodeAction[]>(
+      "vscode.executeCodeActionProvider",
+      doc.uri,
+      new vscode.Range(position, position),
+    );
+  };
+  const traceActions = await actionsAt(original.indexOf("- id: prova") + 6);
+  assert.deepEqual(
+    traceActions
+      .map((action) => action.command?.command)
+      .filter((command) => command?.endsWith("Trace"))
+      .sort(),
+    [
+      "verifiche.deleteTrace",
+      "verifiche.duplicateTrace",
+      "verifiche.renameTrace",
+    ],
+  );
+  const versionActions = await actionsAt(original.indexOf("prova: base") + 2);
+  const chooseVariant = versionActions.find(
+    (action) => action.command?.command === "verifiche.chooseVariant",
+  );
+  assert.ok(chooseVariant?.command);
+  assert.equal(chooseVariant.command.arguments?.[2], "prova");
+
   await vscode.commands.executeCommand("verifiche.addTrace", doc.uri);
   assert.match(doc.getText(), /"?2"?:\s*(?:''|"")/);
   await vscode.commands.executeCommand("undo");
@@ -99,7 +134,10 @@ export async function run() {
   if (process.env.VERIFICHE_UI_TEST) {
     const temp = process.env.VERIFICHE_UI_TEST;
     await vscode.window.showTextDocument(doc);
-    await api.preview.choose(doc, referenceOffset, "prova");
+    await vscode.commands.executeCommand(
+      chooseVariant.command.command,
+      ...(chooseVariant.command.arguments ?? []),
+    );
     await fs.writeFile(path.join(temp, "ui-ready"), "ready");
     const deadline = Date.now() + 30000;
     let result = "";
@@ -130,6 +168,6 @@ export async function run() {
   await vscode.workspace.fs.stat(old);
   api.preview.dispose();
   console.log(
-    "PASS: activation, CodeLens, trace edit/undo, definition, template, focus preview, exercise drop/undo, image paste, rename references",
+    "PASS: activation, reduced CodeLens, contextual Code Actions, trace edit/undo, definition, template, focus preview, exercise drop/undo, image paste, rename references",
   );
 }

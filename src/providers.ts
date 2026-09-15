@@ -80,14 +80,6 @@ export class Providers implements vscode.CodeLensProvider {
         traces = s.doc.get("tracce", true);
       if (isSeq(traces)) {
         lens(traces.range?.[0] ?? 0, "Aggiungi traccia", "addTrace");
-        for (const t of traces.items)
-          if (isMap(t)) {
-            const id = String(t.get("id")),
-              at = t.range?.[0] ?? 0;
-            lens(at, "Elimina", "deleteTrace", [id]);
-            lens(at, "Rinomina", "renameTrace", [id]);
-            lens(at, "Duplica", "duplicateTrace", [id]);
-          }
       }
       const list = s.doc.get("blocchi", true);
       if (isSeq(list) && !list.items.length)
@@ -101,11 +93,6 @@ export class Providers implements vscode.CodeLensProvider {
         if (b.node.has("gruppo"))
           lens(at, "+ Nel gruppo", "addBlock", [at, "inside"]);
       }
-      // A single action per use avoids multiplying buttons by the number of traces.
-      for (const r of s.references)
-        lens(r.node.range![0], "Scegli variante…", "chooseVariant", [
-          r.node.range![0],
-        ]);
     } catch {
       /* Syntax errors are reported separately; typing remains available. */
     }
@@ -288,39 +275,89 @@ export class Providers implements vscode.CodeLensProvider {
       ),
     );
     c.push(
-      vscode.languages.registerCodeActionsProvider(selector, {
-        provideCodeActions: (doc, r) => {
-          const loc = locate(doc.uri);
-          if (!loc) return [];
-          const make = (title: string, command: string, args: any[]) => {
-            const a = new vscode.CodeAction(
-              title,
-              vscode.CodeActionKind.Refactor,
-            );
-            a.command = {
-              title,
-              command: "verifiche." + command,
-              arguments: [doc.uri, ...args],
+      vscode.languages.registerCodeActionsProvider(
+        selector,
+        {
+          provideCodeActions: (doc, selectedRange) => {
+            const loc = locate(doc.uri);
+            if (!loc) return [];
+            const make = (title: string, command: string, args: any[]) => {
+              const a = new vscode.CodeAction(
+                title,
+                vscode.CodeActionKind.Refactor,
+              );
+              a.command = {
+                title,
+                command: "verifiche." + command,
+                arguments: [doc.uri, ...args],
+              };
+              return a;
             };
-            return a;
-          };
-          if (!doc.getText().trim())
-            return [make("Inserisci template", "template", [])];
-          if (loc.kind === "verifiche")
-            return [
-              make("Inserisci blocco prima", "addBlock", [
-                doc.offsetAt(r.start),
-                "before",
-              ]),
-              make("Inserisci blocco dopo", "addBlock", [
-                doc.offsetAt(r.start),
-                "after",
-              ]),
-              make("Scegli variante", "chooseVariant", [doc.offsetAt(r.start)]),
-            ];
-          return [];
+            if (!doc.getText().trim())
+              return [make("Inserisci template", "template", [])];
+            if (loc.kind !== "verifiche") return [];
+
+            try {
+              const source = doc.getText(),
+                s = structure(source),
+                cursorLine = selectedRange.start.line,
+                actions: vscode.CodeAction[] = [],
+                traces = s.doc.get("tracce", true);
+
+              if (isSeq(traces)) {
+                const trace = traces.items.find((item) => {
+                  if (!isMap(item) || !item.range) return false;
+                  const itemRange = item.range;
+                  return (
+                    doc.positionAt(itemRange[0]).line <= cursorLine &&
+                    cursorLine <=
+                      doc.positionAt(Math.max(itemRange[0], itemRange[2] - 1))
+                        .line
+                  );
+                });
+                if (isMap(trace)) {
+                  const id = String(trace.get("id"));
+                  actions.push(
+                    make(`Elimina traccia ${id}`, "deleteTrace", [id]),
+                    make(`Rinomina traccia ${id}`, "renameTrace", [id]),
+                    make(`Duplica traccia ${id}`, "duplicateTrace", [id]),
+                  );
+                }
+              }
+
+              for (const reference of s.references) {
+                for (const pair of reference.versions?.items ?? []) {
+                  const key = pair.key,
+                    value: any = pair.value;
+                  if (!(key instanceof Scalar) || !key.range || !value?.range)
+                    continue;
+                  const firstLine = doc.positionAt(key.range[0]).line,
+                    lastLine = doc.positionAt(
+                      Math.max(value.range[0], value.range[2] - 1),
+                    ).line;
+                  if (firstLine <= cursorLine && cursorLine <= lastLine) {
+                    const trace = String(key.value);
+                    actions.push(
+                      make(
+                        trace === "default"
+                          ? "Scegli variante predefinita"
+                          : `Scegli variante per la traccia ${trace}`,
+                        "chooseVariant",
+                        [reference.node.range![0], trace],
+                      ),
+                    );
+                    break;
+                  }
+                }
+              }
+              return actions;
+            } catch {
+              return [];
+            }
+          },
         },
-      }),
+        { providedCodeActionKinds: [vscode.CodeActionKind.Refactor] },
+      ),
     );
     c.push(
       vscode.languages.registerReferenceProvider(selector, {

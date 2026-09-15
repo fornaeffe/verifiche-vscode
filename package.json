@@ -2,7 +2,7 @@
   "name": "verifiche-vscode",
   "displayName": "Verifiche",
   "description": "Verifiche ed esercizi Markdown/YAML nell'editor, con anteprima e PDF.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "fornaeffe",
   "license": "GPL-3.0-only",
   "repository": {
@@ -126,11 +126,6 @@
       "editor/context": [
         {
           "command": "verifiche.addBlock",
-          "when": "verifiche.kind == verifiche",
-          "group": "verifiche"
-        },
-        {
-          "command": "verifiche.chooseVariant",
           "when": "verifiche.kind == verifiche",
           "group": "verifiche"
         },
