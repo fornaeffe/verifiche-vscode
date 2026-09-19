@@ -1,3 +1,4 @@
 - [ ] Aggiungere un shortcut da tastiera per l'inserimento di una formula chimica: lo shortcut non deve sovrapporsi ad uno shortcut già esistente di VSCode e deve aggiungere automaticamente `$\ce{}$` posizionando il cursore tra le due parentesi graffe.
 - [ ] Un esercizio incollato fuori da un gruppo dovrebbe avere già `punti: 1`
 - [ ] Esporre in settings i nomi di default (ad esempio il nome di default della prima variante) e il percorso di output
+- [ ] Documentare la produzione del file installabile dell'estensione
