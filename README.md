@@ -1,8 +1,9 @@
 # Verifiche per VS Code
 
 Estensione per creare e modificare verifiche ed esercizi nell'editor testuale di
-Visual Studio Code, con anteprime, varianti e generazione di PDF. Prima versione
-utilizzabile, da verificare sul proprio flusso quotidiano.
+Visual Studio Code, con anteprime, varianti e generazione di PDF. Il collaudo
+quotidiano dell’utilizzatore ha confermato maggiore fluidità rispetto al precedente
+strumento XML; miglioramenti e prove specifiche ancora aperte sono in [TODO.md](TODO.md).
 
 I contenuti sono file Markdown e YAML conservati in una cartella dati separata.
 Questo repository contiene il software; non contiene verifiche o esercizi privati.
@@ -51,7 +52,11 @@ usare il testo YAML.
 Un esercizio esistente inserito nella verifica riceve le varianti non vuote in ordine:
 prima la traccia pubblica, poi le altre. Non vengono riciclate se le tracce sono più
 numerose. Un esercizio appena creato e una traccia appena aggiunta restano senza
-assegnazioni. Le modifiche strutturali sono annullabili con il normale comando Undo.
+assegnazioni. `default` è il ripiego per le tracce non esplicitate; un’assegnazione
+esplicitamente vuota (`''`) omette esercizio e punti, mentre una variante inesistente
+è un errore. L’aggiunta assistita di una traccia scrive assegnazioni vuote per evitare
+di ereditare `default` involontariamente. Le modifiche strutturali sono annullabili
+con il normale comando Undo.
 
 ## Esercizi, immagini e riferimenti
 
@@ -106,5 +111,7 @@ in Git e controllare il report e le modifiche. Non servono account LLM per usare
 o estensione.
 
 Sviluppo e test: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Attività correnti: [TODO.md](TODO.md). Decisioni e documenti iniziali:
+[archivio di implementazione](docs/archivio-implementazione/README.md).
 Licenza del software: [GNU GPL versione 3](LICENSE). Attribuzioni:
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

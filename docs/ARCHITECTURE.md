@@ -25,6 +25,10 @@ precaricate. Non occorre avviare un'applicazione web separata.
 modifiche. Un errore o una revisione cambiata impedisce l'applicazione; l'applicazione
 è ripetibile. `cli.ts` espone migrazione, validazione e PDF anche senza VS Code.
 
+Le previsioni del piano iniziale ancora parziali e le prove specifiche mancanti
+sono elencate in [TODO.md](../TODO.md). Il contesto delle scelte è
+nell’[archivio di implementazione](archivio-implementazione/README.md).
+
 ## Comandi di sviluppo
 
 ```sh
@@ -54,4 +58,5 @@ fratelli. Il manifest pubblicato non deve includere contenuti reali o percorsi p
 - La validazione globale è esplicita. Una bozza errata estranea al documento corrente
   non deve impedire l'anteprima di quest'ultimo.
 - L'equivalenza con lo strumento precedente misura i contenuti; la velocità del
-  flusso di lavoro richiede anche una prova pratica con l'utilizzatore.
+  flusso di lavoro richiede anche una prova pratica. L’utilizzatore ha confermato
+  maggiore fluidità il 15 ottobre 2026; è un esito qualitativo, senza nuove misure temporali.

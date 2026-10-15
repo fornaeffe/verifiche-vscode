@@ -1,11 +1,30 @@
-# Development instructions
+# Lavoro sull’estensione Verifiche
 
-- Read README.md and docs/ARCHITECTURE.md before changing the extension.
-- Keep the extension independent of any personal content repository. Use synthetic
-  fixtures in public tests, screenshots and documentation.
-- Preserve untouched source text when implementing structural edits. Exercise IDs
-  are relative paths without `.md`; do not reintroduce front-matter IDs.
-- Run `npm test` and `npm run build` for changes to the domain or extension. Run the
-  Extension Host integration suite when changing VS Code integration or the webview.
-- Keep checkpoints in the private project plan when working with a separate data
-  repository; do not copy private content or operational logs into this repository.
+## Documentazione da leggere
+
+- Per ogni intervento: `README.md`, `docs/ARCHITECTURE.md` e la sola attività
+  pertinente in `TODO.md`. Tenere le istruzioni concise e separate per compito.
+- Per contratti e decisioni iniziali: `docs/archivio-implementazione/PIANO-VSCODE.md`
+  e il suo checkpoint finale. `PROMPT.md` e `PROPOSTA.md` nella stessa cartella sono
+  documenti storici; la proposta web è superata dal piano VS Code.
+- Aggiornare TODO dopo una consegna verificata e il piano se cambia lo stato di una
+  sua previsione, distinguendo codice presente, test eseguiti e prove ancora aperte.
+
+## Codice e verifiche
+
+- Il codice dell’estensione è in questo repository. Mantenerlo indipendente da
+  qualsiasi archivio personale; l’installazione non richiede checkout dati fratelli.
+- Usare solo fixture sintetiche nei test, negli screenshot e nella documentazione pubblica.
+  Non trasferire contenuti, report, screenshot o diari operativi reali nel pubblico.
+- Preservare il testo non coinvolto nelle modifiche strutturali. Gli ID esercizio
+  sono percorsi relativi senza `.md`; non reintrodurre ID nel front matter.
+- Eseguire `npm test` e `npm run build` per modifiche al dominio o all’estensione;
+  eseguire anche la suite Extension Host per modifiche all’integrazione VS Code o
+  alla webview. Per modifiche solo documentali verificare riferimenti e diff.
+
+## Interventi su dati privati
+
+Leggere le istruzioni e il checkpoint più recente nella cartella dati interessata,
+se l’intervento la coinvolge. Controllare separatamente lo stato Git dei repository
+e conservare revisioni, report di migrazione e risultati reali soltanto nel diario
+privato. Le istruzioni pubbliche non devono imporre percorsi o nomi locali.
