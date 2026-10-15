@@ -245,6 +245,67 @@ export function blockAt(source: string, offset: number) {
     )
     .at(-1);
 }
+function insertionTarget(source: string, at: number, side: string) {
+  const s = structure(source),
+    block = s.blocks
+      .filter(
+        (b) => b.node.range && b.node.range[0] <= at && at <= b.node.range[2],
+      )
+      .at(-1);
+  if (side === "inside" && block) {
+    const group = block.node.get("gruppo", true);
+    if (isMap(group)) {
+      const list = group.get("esercizi", true);
+      if (isSeq(list))
+        return {
+          doc: s.doc,
+          list,
+          index: list.items.length,
+          path: [...block.path, "gruppo", "esercizi"],
+        };
+    }
+  }
+  if (block)
+    return {
+      doc: s.doc,
+      list: block.list,
+      index: block.index + (side === "before" ? 0 : 1),
+      path: block.path.slice(0, -1),
+    };
+  const list = s.doc.get("blocchi", true);
+  if (!isSeq(list)) throw Error("La sezione blocchi deve essere una lista");
+  return { doc: s.doc, list, index: list.items.length, path: ["blocchi"] };
+}
+export function insertion(
+  source: string,
+  at: number,
+  value: unknown,
+  side = "after",
+): Patch {
+  const { list, index } = insertionTarget(source, at, side);
+  return insertItem(source, list, index, value);
+}
+export function exerciseBlockInsertion(
+  source: string,
+  at: number,
+  usage: { id: string; versioni: Record<string, string> },
+  defaultPoints = true,
+  side = "after",
+): Patch {
+  const target = insertionTarget(source, at, side);
+  const scoredGroup = target.path.some((key, i) => {
+    if (key !== "gruppo") return false;
+    const points = target.doc.getIn([...target.path.slice(0, i + 1), "punti"]);
+    return typeof points === "number" && Number.isFinite(points) && points >= 0;
+  });
+  return insertItem(source, target.list, target.index, {
+    esercizio: {
+      id: usage.id,
+      ...(defaultPoints && !scoredGroup ? { punti: 1 } : {}),
+      versioni: usage.versioni,
+    },
+  });
+}
 export function assignments(
   traces: any[],
   variants: Record<string, string>,

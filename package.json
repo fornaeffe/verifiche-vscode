@@ -167,6 +167,12 @@
           "type": "boolean",
           "default": true,
           "description": "Apri l'anteprima quando si attiva una verifica o un esercizio."
+        },
+        "verifiche.defaultExercisePoints": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Assegna punti: 1 agli esercizi aggiunti alla verifica tramite inserimento o trascinamento, salvo nei gruppi con un punteggio già impostato."
         }
       }
     }

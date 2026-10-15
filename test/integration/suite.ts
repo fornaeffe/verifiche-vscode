@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import assert from "node:assert/strict";
 import path from "node:path";
 import fs from "node:fs/promises";
+import { structure } from "../../src/document";
 
 export async function run() {
   const root = process.env.VERIFICHE_TEST_ROOT!;
@@ -171,9 +172,61 @@ export async function run() {
   assert.ok(drop?.additionalEdit);
   await vscode.workspace.applyEdit(drop.additionalEdit);
   assert.equal((doc.getText().match(/scienze\/esempio/g) || []).length, 2);
+  assert.equal(structure(doc.getText()).references[1].usage.get("punti"), 1);
   await vscode.window.showTextDocument(doc);
   await vscode.commands.executeCommand("undo");
   assert.equal(doc.getText(), original);
+  await vscode.commands.executeCommand("redo");
+  assert.equal(structure(doc.getText()).references[1].usage.get("punti"), 1);
+  await vscode.commands.executeCommand("undo");
+  assert.equal(doc.getText(), original);
+  const config = vscode.workspace.getConfiguration("verifiche", doc.uri);
+  const previousDefaultPoints = config.inspect<boolean>(
+    "defaultExercisePoints",
+  )?.workspaceValue;
+  assert.equal(config.get("defaultExercisePoints"), true);
+  try {
+    await config.update(
+      "defaultExercisePoints",
+      false,
+      vscode.ConfigurationTarget.Workspace,
+    );
+    const withoutPoints = await api.transfers.provideDocumentDropEdits(
+      doc,
+      doc.positionAt(referenceOffset + 2),
+      data,
+      new vscode.CancellationTokenSource().token,
+    );
+    assert.ok(withoutPoints?.additionalEdit);
+    assert.ok(await vscode.workspace.applyEdit(withoutPoints.additionalEdit));
+    const refs = structure(doc.getText()).references;
+    assert.equal(refs[1].usage.has("punti"), false);
+    assert.equal(refs[0].usage.get("punti"), 2);
+    await vscode.commands.executeCommand("undo");
+    assert.equal(doc.getText(), original);
+    await config.update(
+      "defaultExercisePoints",
+      true,
+      vscode.ConfigurationTarget.Workspace,
+    );
+    const withPoints = await api.transfers.provideDocumentDropEdits(
+      doc,
+      doc.positionAt(referenceOffset + 2),
+      data,
+      new vscode.CancellationTokenSource().token,
+    );
+    assert.ok(withPoints?.additionalEdit);
+    assert.ok(await vscode.workspace.applyEdit(withPoints.additionalEdit));
+    assert.equal(structure(doc.getText()).references[1].usage.get("punti"), 1);
+    await vscode.commands.executeCommand("undo");
+    assert.equal(doc.getText(), original);
+  } finally {
+    await config.update(
+      "defaultExercisePoints",
+      previousDefaultPoints,
+      vscode.ConfigurationTarget.Workspace,
+    );
+  }
   const imageData = new vscode.DataTransfer();
   const bytes = Buffer.from(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7S8AAAAASUVORK5CYII=",
@@ -261,6 +314,6 @@ export async function run() {
   await vscode.workspace.fs.stat(old);
   api.preview.dispose();
   console.log(
-    "PASS: activation, chemical formula command/keyboard/cursor/undo/redo and default binding conflicts, reduced CodeLens, contextual Code Actions, picker cancel/select without duplicate editors, trace edit/undo, definition, template, focus preview, exercise drop/undo, image paste, rename references",
+    "PASS: activation, chemical formula command/keyboard/cursor/undo/redo and default binding conflicts, reduced CodeLens, contextual Code Actions, picker cancel/select without duplicate editors, trace edit/undo, definition, template, focus preview, exercise drop/default points/settings/undo/redo, image paste, rename references",
   );
 }

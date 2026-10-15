@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import path from "node:path";
-import { isSeq, isMap, YAMLMap, Scalar } from "yaml";
+import { YAMLMap, Scalar } from "yaml";
 import {
   structure,
-  blockAt,
-  insertItem,
+  insertion,
+  exerciseBlockInsertion,
   assignments,
   examTemplate,
   traceEdit,
@@ -35,33 +35,6 @@ import { exportPDF } from "./pdf";
 import { validate, exercise, content } from "./core";
 import { spawn } from "node:child_process";
 
-export function insertion(
-  source: string,
-  at: number,
-  value: unknown,
-  side = "after",
-): Patch {
-  const s = structure(source),
-    block = blockAt(source, at);
-  if (side === "inside" && block) {
-    const group = block.node.get("gruppo", true);
-    if (isMap(group)) {
-      const list = group.get("esercizi", true);
-      if (isSeq(list))
-        return insertItem(source, list, list.items.length, value);
-    }
-  }
-  if (block)
-    return insertItem(
-      source,
-      block.list,
-      block.index + (side === "before" ? 0 : 1),
-      value,
-    );
-  const list = s.doc.get("blocchi", true);
-  if (!isSeq(list)) throw Error("La sezione blocchi deve essere una lista");
-  return insertItem(source, list, list.items.length, value);
-}
 export async function exerciseInsertion(
   doc: vscode.TextDocument,
   at: number,
@@ -75,15 +48,16 @@ export async function exerciseInsertion(
   const e = empty
     ? { varianti: {}, variantOrder: [] }
     : await repository(loc.base).getExercise(id);
-  return insertion(
+  return exerciseBlockInsertion(
     source,
     at,
     {
-      esercizio: {
-        id,
-        versioni: assignments(v.tracce, e.varianti, empty, e.variantOrder),
-      },
+      id,
+      versioni: assignments(v.tracce, e.varianti, empty, e.variantOrder),
     },
+    vscode.workspace
+      .getConfiguration("verifiche", doc.uri)
+      .get<boolean>("defaultExercisePoints", true),
     side,
   );
 }

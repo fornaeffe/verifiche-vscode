@@ -124,6 +124,7 @@ Provare presto il gesto di drop dall'Explorer verso l'editor, incluse le eventua
 
 - Drop esercizio: identificare un confine strutturale valido nella lista destinazione; all'interno di un blocco proporre una regola coerente prima/dopo e gestire esplicitamente ingresso/uscita dai gruppi. Se ambiguo, scelta breve invece di inserimento silenzioso nel gruppo sbagliato.
 - Riutilizzare lo stesso comando di inserimento del selettore e le stesse regole di assegnazione.
+- Aggiunta del 15 ottobre 2026: comando e drop assegnano `punti: 1`, salvo nei gruppi con punteggio, inclusi gli antenati. La regola è disattivabile con `verifiche.defaultExercisePoints` (default `true`); verificati test di dominio, build ed Extension Host con cambio impostazione e annulla/ripristina.
 - Drop immagine e incolla immagine binaria: copiare in `contenuti/allegati`, evitare sovrascritture con nome univoco, inserire riferimento Markdown compatibile con rendering e PDF. Nessun percorso assoluto nel contenuto.
 - Se l'immagine è già negli allegati della stessa radice, riusare il riferimento. Copiare immagini esterne; non scaricare URL remoti implicitamente.
 - Conservare la sintassi corrente di dimensioni e disposizione (`width`, `float`) e il supporto ai riferimenti legacy agli allegati.

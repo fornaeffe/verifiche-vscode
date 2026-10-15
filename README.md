@@ -58,6 +58,12 @@ esplicitamente vuota (`''`) omette esercizio e punti, mentre una variante inesis
 di ereditare `default` involontariamente. Le modifiche strutturali sono annullabili
 con il normale comando Undo.
 
+Gli esercizi aggiunti tramite comando o drop ricevono `punti: 1`, salvo quando
+sono inseriti in un gruppo con un punteggio già impostato (anche `0`), compresi
+i gruppi antenati. Nei settings di VS Code, **Verifiche: Default Exercise Points**
+(`verifiche.defaultExercisePoints`) permette di disattivare o riattivare questa
+regola. L'opzione è attiva per default e riguarda solo i nuovi inserimenti.
+
 ## Esercizi, immagini e riferimenti
 
 Per inserire una formula chimica premere `Ctrl+K`, poi `Ctrl+Alt+H`

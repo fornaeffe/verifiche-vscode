@@ -10,6 +10,7 @@ import {
   assignments,
   examTemplate,
   variants,
+  exerciseBlockInsertion,
 } from "../src/document";
 
 const example = `# Titolo da conservare\ntitolo: Test\ntracce:\n  - id: prova # Pubblica\n    pubblica: true\n  - id: '1'\nblocchi:\n  - gruppo:\n      istruzioni: Testo\n      esercizi:\n        - esercizio: scienze/esempio\n          punti: 2\n          versioni:\n            default: base # Variante\n            '1': altra\n  - istruzioni:\n      versioni:\n        default: Testo\n        '1': Testo specifico\n`;
@@ -90,6 +91,94 @@ test("assegnazioni pubblica prima, ignora varianti vuote, nessun riciclo", () =>
     "2": "",
     "3": "",
   });
+});
+test("punto predefinito nella lista di destinazione, salvo gruppi con punteggio", () => {
+  const usage = { id: "scienze/nuovo", versioni: { prova: "base" } };
+  for (const points of [undefined, 0, 4]) {
+    const source = example.replace(
+      "      istruzioni: Testo",
+      `${points === undefined ? "" : `      punti: ${points}\n`}      istruzioni: Testo`,
+    );
+    const groupAt = source.indexOf("istruzioni: Testo"),
+      childAt = source.indexOf("scienze/esempio");
+    for (const [at, side, inside] of [
+      [groupAt, "inside", true],
+      [childAt, "before", true],
+      [childAt, "after", true],
+      [groupAt, "before", false],
+      [groupAt, "after", false],
+    ] as const) {
+      const result = applyPatches(source, [
+        exerciseBlockInsertion(source, at, usage, true, side),
+      ]);
+      const s = structure(result);
+      const inserted = s.references.find((r) => r.id === usage.id)!;
+      assert.equal(
+        inserted.usage.get("punti"),
+        inside && points !== undefined ? undefined : 1,
+      );
+      assert.deepEqual(inserted.usage.toJSON().versioni, usage.versioni);
+      assert.equal(inserted.block.path.length > 2, inside);
+      assert.ok(result.includes("default: base # Variante"));
+      assert.equal(
+        s.references
+          .find((r) => r.id === "scienze/esempio")!
+          .usage.get("punti"),
+        2,
+      );
+    }
+  }
+});
+test("punteggio disattivato e gruppi vuoti o annidati, anche con CRLF", () => {
+  const usage = { id: "nuovo", versioni: { prova: "" } };
+  for (const newline of ["\n", "\r\n"]) {
+    for (const outerScore of [undefined, 0, 5]) {
+      const source = YAML.stringify({
+        titolo: "Test",
+        tracce: [{ id: "prova" }],
+        blocchi: [
+          {
+            gruppo: {
+              ...(outerScore === undefined ? {} : { punti: outerScore }),
+              esercizi: [{ gruppo: { istruzioni: "Interno", esercizi: [] } }],
+            },
+          },
+        ],
+      }).replace(/\n/g, newline);
+      const at = source.indexOf("istruzioni: Interno");
+      for (const enabled of [false, true]) {
+        const result = applyPatches(source, [
+          exerciseBlockInsertion(source, at, usage, enabled, "inside"),
+        ]);
+        const reference = structure(result).references[0];
+        assert.equal(
+          reference.usage.get("punti"),
+          enabled && outerScore === undefined ? 1 : undefined,
+        );
+        assert.deepEqual(reference.block.path, [
+          "blocchi",
+          0,
+          "gruppo",
+          "esercizi",
+          0,
+          "gruppo",
+          "esercizi",
+          0,
+        ]);
+        if (newline === "\r\n") assert.ok(!/(?<!\r)\n/.test(result));
+      }
+    }
+    const source = examTemplate("Vuota").replace(/\n/g, newline);
+    for (const enabled of [false, true]) {
+      const result = applyPatches(source, [
+        exerciseBlockInsertion(source, 0, usage, enabled),
+      ]);
+      assert.equal(
+        YAML.parse(result).blocchi[0].esercizio.punti,
+        enabled ? 1 : undefined,
+      );
+    }
+  }
 });
 test("sostituzione di valore multilinea conserva la chiave seguente", () => {
   const source = "testo: |\n  Prima\n  Seconda\naltro: sì\n";
