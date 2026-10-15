@@ -2,7 +2,6 @@
 
 ## Miglioramenti raccolti durante l’uso
 
-- [ ] Quando si clicca "Aggiungi traccia" per aggiungere una traccia alla verifica, l'estensione dovrebbe automaticamente associare alla nuova traccia una versione non ancora utilizzata (se presente) di ciascun esercizio (la prima non utilizzata, nell'ordine in cui sono scritte).
 - [ ] Esporre in settings i nomi di default (ad esempio il nome di default della prima variante) e il percorso di output
 - [ ] Documentare la produzione del file installabile dell'estensione
 
@@ -66,5 +65,6 @@ Usare fixture sintetiche e profili isolati per le prove tecniche.
 
 ## Completato
 
+- [x] **Popolamento automatico delle nuove tracce**: prima variante non vuota libera nell’ordine del file, contando tutte le tracce e gli usi effettivi di `default`. Gli usi ripetuti dello stesso esercizio riservano varianti distinte nell’ordine dei blocchi, anche annidati; esaurite le varianti, assegnazione esplicita `''`. Verificati test di dominio, build ed Extension Host con buffer non salvati, esaurimento, annulla/ripristina e assenza di modifiche parziali su esercizi mancanti o malformati. Nessun nuovo VSIX creato o installato.
 - [x] Gli esercizi aggiunti tramite comando o drop ricevono `punti: 1`, salvo nei gruppi con punteggio (anche `0`, inclusi gli antenati). Opzione `verifiche.defaultExercisePoints` nei settings, attiva per default. Verificati test di dominio, build ed Extension Host con cambio impostazione e annulla/ripristina.
 - [x] Inserimento formula chimica con `Ctrl+K`, poi `Ctrl+Alt+H` (`Cmd+K`, poi `Cmd+Alt+H` su macOS): aggiunge `$\ce{}$` con il cursore tra le parentesi graffe. Verificati assenza di conflitti predefiniti e pressione effettiva della sequenza su Windows.

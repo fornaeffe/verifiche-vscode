@@ -14,7 +14,7 @@ Creare e modificare verifiche ed esercizi con uno sforzo non superiore al preced
 - Codice dell’estensione in questo repository pubblico `verifiche-vscode`, con licenza GPL-3.0-only. I dati personali restano in una cartella separata e privata, senza posizione obbligata rispetto al software.
 - ID esercizio = percorso relativo a `contenuti/esercizi`, senza `.md`, con `/` anche su Windows. Nessun ID nel front matter.
 - Aggiornare i riferimenti per rinomine/spostamenti da Explorer, inclusi spostamenti di cartelle. Accettare il rischio di operazioni esterne, segnalandone i riferimenti mancanti.
-- Nuova traccia: nessuna assegnazione in tutti gli esercizi, anche in presenza di `default`.
+- Nuova traccia: prima variante non vuota non ancora utilizzata nella verifica, nell’ordine testuale; esaurite le varianti, assegnazione esplicita `''`. Regola aggiornata il 15 ottobre 2026.
 - Nuovo esercizio inserito nella verifica: nessuna assegnazione. Non associare automaticamente varianti vuote o segnaposto.
 - Assegnazione sequenziale: ordine delle tracce dichiarato e ordine testuale delle varianti; traccia pubblica prima, destinataria della prima variante per default. Tracce eccedenti senza assegnazione, senza riciclo automatico.
 - Focus sull'esercizio: anteprima delle sue varianti, anche se aperto dalla verifica. Focus sulla verifica: anteprima della verifica.
@@ -109,7 +109,8 @@ Applicare modifiche tramite le API documentali VS Code. Verificare annulla/ripri
 
 ### 4.3 Tracce, gruppi e associazioni
 
-- Aggiungi traccia: ID valido univoco generato, modificabile subito; aggiungere `''` a ogni uso esercizio ricorsivamente. L'assenza della chiave non è equivalente perché attiva `default`.
+- Aggiungi traccia: ID valido univoco generato; la modifica immediata dell’ID resta nel TODO. Per ogni uso esercizio, anche annidato, assegnare la prima variante non vuota libera nell’ordine testuale. Contare gli usi effettivi di tutte le tracce, inclusa la pubblica e il ripiego `default`; un `default` coperto non occupa la variante. Riservare per ID esercizio anche le nuove assegnazioni, nell’ordine dei blocchi. Esaurite le varianti, scrivere `''`: l’assenza della chiave attiverebbe `default`. Leggere anche i buffer non salvati; un esercizio mancante o non analizzabile interrompe l’operazione senza modifiche parziali.
+- Verifica della regola di assegnazione, 15 ottobre 2026: test di dominio (ordine numerico, `default`, omissioni, gruppi annidati, usi ripetuti e CRLF), build ed Extension Host su VS Code 1.100.0 superati; provati buffer non salvati, esaurimento, Undo/Redo ed errori di lettura/parsing senza modifiche parziali. Nessun nuovo pacchetto o installazione nel profilo ordinario.
 - Elimina traccia: conferma e rimozione da tutte le mappe `versioni`, anche istruzioni e contenuti. Se una mappa diventa vuota, la bozza deve restare rappresentabile. Impedire dal comando la rimozione dell'ultima traccia; una cancellazione manuale resta salvabile con diagnostica.
 - Per istruzioni/contenuti della nuova traccia mantenere `testo` o l'eredità `default`; se manca un valore risolvibile, indicare l'incompletezza senza inventare testo.
 - Rinomina traccia e variante: aggiornare semanticamente i relativi utilizzi; non sostituire indiscriminatamente stringhe nel testo.

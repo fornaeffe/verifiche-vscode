@@ -32,7 +32,7 @@ import {
 import { enumerate, exercisePath, relativeId } from "./repository";
 import { Preview } from "./preview";
 import { exportPDF } from "./pdf";
-import { validate, exercise, content } from "./core";
+import { validate, exercise, content, type Exercise } from "./core";
 import { spawn } from "node:child_process";
 
 export async function exerciseInsertion(
@@ -236,13 +236,23 @@ export function registerCommands(
     register(kind + "Trace", async (uri?: vscode.Uri, given?: string) => {
       const doc = await target(uri),
         version = doc.version,
-        s = structure(doc.getText());
+        source = doc.getText(),
+        s = structure(source);
       const existing = s.doc.toJS().tracce.map((t: any) => String(t.id));
+      const exercises = new Map<string, Exercise>();
       let id: string | undefined, next: string | undefined;
       if (kind === "add") {
         let n = 1;
         while (existing.includes(String(n))) n++;
         id = String(n);
+        const repo = repository(locate(doc.uri)!.base);
+        for (const exerciseId of new Set(s.references.map((r) => r.id))) {
+          try {
+            exercises.set(exerciseId, await repo.getExercise(exerciseId));
+          } catch (e) {
+            throw Error(`Esercizio ${exerciseId}: ${errorMessage(e)}`);
+          }
+        }
       } else {
         id = await selectTrace(doc, given);
         if (!id) return;
@@ -260,7 +270,7 @@ export function registerCommands(
         next = await newName("Nome nuova traccia", existing);
         if (!next) return;
       }
-      await apply(doc, version, traceEdit(doc.getText(), kind, id, next));
+      await apply(doc, version, traceEdit(source, kind, id, next, exercises));
     });
   register(
     "chooseVariant",

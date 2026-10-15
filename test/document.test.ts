@@ -12,18 +12,141 @@ import {
   variants,
   exerciseBlockInsertion,
 } from "../src/document";
+import { exercise } from "../src/core";
 
 const example = `# Titolo da conservare\ntitolo: Test\ntracce:\n  - id: prova # Pubblica\n    pubblica: true\n  - id: '1'\nblocchi:\n  - gruppo:\n      istruzioni: Testo\n      esercizi:\n        - esercizio: scienze/esempio\n          punti: 2\n          versioni:\n            default: base # Variante\n            '1': altra\n  - istruzioni:\n      versioni:\n        default: Testo\n        '1': Testo specifico\n`;
-test("aggiunta traccia esclude esercizi anche con default e conserva commenti e CRLF", () => {
+const traceExercises = new Map([
+  [
+    "scienze/esempio",
+    {
+      varianti: { base: "Uno", vuota: " \n", altra: "Due", terza: "Tre" },
+      variantOrder: ["base", "vuota", "altra", "terza"],
+    },
+  ],
+]);
+test("aggiunta traccia usa la prima variante libera e conserva commenti e CRLF", () => {
   for (const source of [example, example.replace(/\n/g, "\r\n")]) {
-    const result = applyPatches(source, traceEdit(source, "add", "2")),
+    const result = applyPatches(
+        source,
+        traceEdit(source, "add", "2", undefined, traceExercises),
+      ),
       v = YAML.parse(result);
-    assert.equal(v.blocchi[0].gruppo.esercizi[0].versioni["2"], "");
+    assert.equal(v.blocchi[0].gruppo.esercizi[0].versioni["2"], "terza");
     assert.equal(v.tracce.length, 3);
+    assert.deepEqual(v.blocchi[1], YAML.parse(source).blocchi[1]);
     assert.ok(result.includes("default: base # Variante"));
     assert.ok(result.startsWith("# Titolo da conservare"));
     if (source.includes("\r")) assert.ok(!/(?<!\r)\n/.test(result));
+    const exhausted = YAML.parse(
+      applyPatches(
+        result,
+        traceEdit(result, "add", "3", undefined, traceExercises),
+      ),
+    );
+    assert.equal(exhausted.blocchi[0].gruppo.esercizi[0].versioni["3"], "");
   }
+});
+test("conta solo le assegnazioni effettive, con default e omissioni esplicite", () => {
+  for (const [versioni, expected] of [
+    [{ default: "base", "1": "altra" }, "terza"],
+    [{ default: "base", prova: "altra", "1": "altra" }, "base"],
+    [{ default: "base", prova: "", "1": "altra" }, "base"],
+    [{ default: "altra", prova: "base", "1": "" }, "altra"],
+  ] as const) {
+    const source = YAML.stringify({
+      titolo: "Test",
+      tracce: [{ id: "1" }, { id: "prova", pubblica: true }],
+      blocchi: [{ esercizio: { id: "scienze/esempio", punti: 2, versioni } }],
+    });
+    const result = YAML.parse(
+      applyPatches(
+        source,
+        traceEdit(source, "add", "2", undefined, traceExercises),
+      ),
+    );
+    assert.deepEqual(result.blocchi[0].esercizio, {
+      id: "scienze/esempio",
+      punti: 2,
+      versioni: { ...versioni, "2": expected },
+    });
+  }
+});
+test("riserva le varianti per ID tra tutti gli usi, anche annidati e senza mappa", () => {
+  const source = `titolo: Test
+tracce: [{id: prova, pubblica: true}, {id: '1'}]
+blocchi:
+  - esercizio: ripetuto
+    versioni: {prova: base, '1': ''}
+  - gruppo:
+      punti: 5
+      esercizi:
+        - gruppo:
+            esercizi:
+              - esercizio: {id: ripetuto, versioni: {prova: '', '1': terza}}
+              - esercizio: {id: ripetuto}
+  - esercizio: altro
+`;
+  const variants = {
+    varianti: { base: "Uno", terza: "Tre", seconda: "Due", quarta: "Quattro" },
+    variantOrder: ["base", "terza", "seconda", "quarta"],
+  };
+  const exercises = new Map([
+    ["ripetuto", variants],
+    ["altro", variants],
+  ]);
+  const result = applyPatches(
+    source,
+    traceEdit(source, "add", "2", undefined, exercises),
+  );
+  const refs = structure(result).references;
+  assert.deepEqual(
+    refs.map((r) => r.versions!.get("2")),
+    ["seconda", "quarta", "", "base"],
+  );
+  assert.equal(
+    structure(result).doc.getIn(["blocchi", 1, "gruppo", "punti"]),
+    5,
+  );
+  for (const [index, ref] of structure(source).references.entries()) {
+    const after = refs[index].usage.toJSON();
+    delete after.versioni["2"];
+    if (!ref.versions) delete after.versioni;
+    assert.deepEqual(after, ref.usage.toJSON());
+  }
+});
+test("aggiunta traccia segue l'ordine testuale dei nomi numerici", () => {
+  const e = exercise(
+    "---\ntipo: A\n---\n\n:::variante 10\nUno\n:::\n\n:::variante 2\nDue\n:::\n\n:::variante 1\nTre\n:::\n",
+  );
+  const exercises = new Map([["esempio", e]]);
+  let source =
+    "titolo: Test\ntracce: [{id: prova}]\nblocchi: [{esercizio: esempio, versioni: {prova: '1'}}]\n";
+  for (const [trace, expected] of [
+    ["1", "10"],
+    ["2", "2"],
+    ["3", ""],
+  ]) {
+    source = applyPatches(
+      source,
+      traceEdit(source, "add", trace, undefined, exercises),
+    );
+    assert.equal(
+      structure(source).references[0].versions!.get(trace),
+      expected,
+    );
+  }
+});
+test("aggiunta traccia vuota e rifiuto del catalogo incompleto", () => {
+  const source = examTemplate("Vuota");
+  assert.equal(
+    YAML.parse(applyPatches(source, traceEdit(source, "add", "2"))).tracce
+      .length,
+    3,
+  );
+  assert.throws(
+    () => traceEdit(example, "add", "2"),
+    /scienze\/esempio: varianti non caricate/,
+  );
 });
 test("elimina e rinomina traccia in tutte le mappe, duplica risolvendo default", () => {
   const deleted = YAML.parse(

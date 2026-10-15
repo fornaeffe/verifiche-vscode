@@ -51,12 +51,21 @@ usare il testo YAML.
 
 Un esercizio esistente inserito nella verifica riceve le varianti non vuote in ordine:
 prima la traccia pubblica, poi le altre. Non vengono riciclate se le tracce sono più
-numerose. Un esercizio appena creato e una traccia appena aggiunta restano senza
-assegnazioni. `default` è il ripiego per le tracce non esplicitate; un’assegnazione
+numerose. Un esercizio appena creato resta senza assegnazioni.
+`default` è il ripiego per le tracce non esplicitate; un’assegnazione
 esplicitamente vuota (`''`) omette esercizio e punti, mentre una variante inesistente
-è un errore. L’aggiunta assistita di una traccia scrive assegnazioni vuote per evitare
-di ereditare `default` involontariamente. Le modifiche strutturali sono annullabili
-con il normale comando Undo.
+è un errore.
+
+**Aggiungi traccia** assegna a ciascun esercizio la prima variante non vuota ancora
+libera, nell’ordine del file. Contano gli usi in tutte le tracce della verifica,
+compresa la pubblica, anche tramite `default`. Un `default` coperto da assegnazioni
+esplicite non occupa la variante. Se lo stesso esercizio compare più volte, le
+varianti vengono riservate nell’ordine dei blocchi, anche nei gruppi annidati.
+Quando sono esaurite, il comando scrive `''`, evitando l’eredità di `default`.
+Le assegnazioni precedenti restano invariate. Il comando usa anche le modifiche
+non salvate agli esercizi; se un esercizio manca o non è analizzabile, non modifica
+la verifica e segnala l’errore. Le modifiche strutturali sono annullabili con il
+normale comando Undo.
 
 Gli esercizi aggiunti tramite comando o drop ricevono `punti: 1`, salvo quando
 sono inseriti in un gruppo con un punteggio già impostato (anche `0`), compresi

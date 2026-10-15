@@ -133,6 +133,36 @@ export async function run() {
   assert.match(doc.getText(), /"?2"?:\s*(?:''|"")/);
   await vscode.commands.executeCommand("undo");
   assert.equal(doc.getText(), original);
+  const exerciseOriginal = exerciseDocument.getText();
+  const availableVariant =
+    "\n:::variante terza\nDomanda nel buffer non salvato.\n:::\n";
+  const exerciseEdit = new vscode.WorkspaceEdit();
+  exerciseEdit.insert(
+    exerciseDocument.uri,
+    exerciseDocument.positionAt(exerciseOriginal.length),
+    availableVariant,
+  );
+  assert.ok(await vscode.workspace.applyEdit(exerciseEdit));
+  assert.ok(exerciseDocument.isDirty);
+  await vscode.window.showTextDocument(doc);
+  await vscode.commands.executeCommand("verifiche.addTrace", doc.uri);
+  const assigned = doc.getText();
+  assert.equal(structure(assigned).references[0].versions!.get("2"), "terza");
+  assert.equal(structure(assigned).doc.toJS().tracce.length, 3);
+  await vscode.commands.executeCommand("undo");
+  assert.equal(doc.getText(), original);
+  await vscode.commands.executeCommand("redo");
+  assert.equal(doc.getText(), assigned);
+  await vscode.commands.executeCommand("verifiche.addTrace", doc.uri);
+  assert.equal(structure(doc.getText()).references[0].versions!.get("3"), "");
+  await vscode.commands.executeCommand("undo");
+  assert.equal(doc.getText(), assigned);
+  await vscode.commands.executeCommand("undo");
+  assert.equal(doc.getText(), original);
+  await vscode.window.showTextDocument(exerciseDocument);
+  await vscode.commands.executeCommand("undo");
+  assert.equal(exerciseDocument.getText(), exerciseOriginal);
+  await vscode.window.showTextDocument(doc);
   const referenceOffset = doc.getText().indexOf("scienze/esempio");
   const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
     "vscode.executeDefinitionProvider",
@@ -312,8 +342,36 @@ export async function run() {
   await vscode.commands.executeCommand("undo");
   assert.match(doc.getText(), /scienze\/esempio/);
   await vscode.workspace.fs.stat(old);
+  // The command must prepare all assignments before changing the exam.
+  const brokenUri = vscode.Uri.file(
+    path.join(root, "contenuti/verifiche/errore.yaml"),
+  );
+  const brokenSource = `titolo: Test errori
+tracce: [{id: prova}]
+blocchi:
+  - esercizio: scienze/esempio
+    versioni: {prova: base}
+  - esercizio: mancante
+    versioni: {prova: base}
+`;
+  await vscode.workspace.fs.writeFile(brokenUri, Buffer.from(brokenSource));
+  const brokenDoc = await vscode.workspace.openTextDocument(brokenUri);
+  await vscode.window.showTextDocument(brokenDoc);
+  await vscode.commands.executeCommand("verifiche.addTrace", brokenUri);
+  assert.equal(brokenDoc.getText(), brokenSource);
+  assert.equal(brokenDoc.isDirty, false);
+  const invalidUri = vscode.Uri.file(
+    path.join(root, "contenuti/esercizi/mancante.md"),
+  );
+  await vscode.workspace.fs.writeFile(
+    invalidUri,
+    Buffer.from("---\ntipo: A\n---\nTesto senza varianti\n"),
+  );
+  await vscode.commands.executeCommand("verifiche.addTrace", brokenUri);
+  assert.equal(brokenDoc.getText(), brokenSource);
+  assert.equal(brokenDoc.isDirty, false);
   api.preview.dispose();
   console.log(
-    "PASS: activation, chemical formula command/keyboard/cursor/undo/redo and default binding conflicts, reduced CodeLens, contextual Code Actions, picker cancel/select without duplicate editors, trace edit/undo, definition, template, focus preview, exercise drop/default points/settings/undo/redo, image paste, rename references",
+    "PASS: activation, chemical formula command/keyboard/cursor/undo/redo and default binding conflicts, reduced CodeLens, contextual Code Actions, picker cancel/select without duplicate editors, trace auto-assignment/unsaved buffers/exhaustion/undo/redo/read errors, definition, template, focus preview, exercise drop/default points/settings/undo/redo, image paste, rename references",
   );
 }

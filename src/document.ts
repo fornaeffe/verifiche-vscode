@@ -7,6 +7,7 @@ import YAML, {
   Scalar,
   Node,
 } from "yaml";
+import { resolve, type Exercise } from "./core";
 
 export interface Patch {
   start: number;
@@ -321,11 +322,45 @@ export function assignments(
     ordered.map((t, i) => [String(t.id), empty ? "" : (names[i] ?? "")]),
   );
 }
+type TraceExercises = ReadonlyMap<
+  string,
+  Pick<Exercise, "varianti" | "variantOrder">
+>;
+function newTraceAssignments(
+  references: Reference[],
+  traces: string[],
+  exercises: TraceExercises,
+) {
+  const used = new Map<string, Set<string>>();
+  for (const ref of references) {
+    const names = used.get(ref.id) ?? new Set<string>();
+    const versions = ref.versions?.toJSON();
+    for (const trace of traces) {
+      const name = resolve(versions, trace);
+      if (typeof name === "string" && name !== "") names.add(name);
+    }
+    used.set(ref.id, names);
+  }
+  const result = new Map<Reference, string>();
+  for (const ref of references) {
+    const exercise = exercises.get(ref.id);
+    if (!exercise) throw Error(`Esercizio ${ref.id}: varianti non caricate`);
+    const names = used.get(ref.id)!;
+    const name =
+      exercise.variantOrder.find(
+        (id) => exercise.varianti[id]?.trim() && !names.has(id),
+      ) ?? "";
+    result.set(ref, name);
+    if (name) names.add(name);
+  }
+  return result;
+}
 export function traceEdit(
   source: string,
   kind: "add" | "delete" | "rename" | "duplicate",
   id: string,
   next?: string,
+  exercises: TraceExercises = new Map(),
 ): Patch[] {
   const s = structure(source),
     list = s.doc.get("tracce", true);
@@ -345,6 +380,14 @@ export function traceEdit(
       list.items.some((t) => isMap(t) && String(t.get("id")) === target))
   )
     throw Error("Nome traccia non valido o già presente");
+  const additions =
+    kind === "add"
+      ? newTraceAssignments(
+          s.references,
+          list.items.map((t) => String((t as YAMLMap).get("id"))),
+          exercises,
+        )
+      : new Map<Reference, string>();
   const patches: Patch[] = [];
   if (kind === "add")
     patches.push(insertItem(source, list, list.items.length, { id }));
@@ -373,18 +416,20 @@ export function traceEdit(
         (p) => String((p.key as Scalar).value) === id,
       )!;
       patches.push(scalarPatch(pair.key as Scalar, next!));
-    } else if (kind === "add" && exerciseMaps.has(map))
-      patches.push(mapSet(source, map, id, ""));
-    else if (kind === "duplicate") {
+    } else if (kind === "duplicate") {
       const value = map.get(id) ?? map.get("default");
       if (value !== undefined || exerciseMaps.has(map))
         patches.push(mapSet(source, map, next!, value ?? ""));
     }
   }
   if (kind === "add" || kind === "duplicate")
-    for (const r of s.references)
-      if (!r.versions)
-        patches.push(mapSet(source, r.usage, "versioni", { [target!]: "" }));
+    for (const r of s.references) {
+      const value = kind === "add" ? additions.get(r)! : "";
+      if (kind === "add" && r.versions)
+        patches.push(mapSet(source, r.versions, id, value));
+      else if (!r.versions)
+        patches.push(mapSet(source, r.usage, "versioni", { [target!]: value }));
+    }
   return patches;
 }
 export function variants(source: string) {
