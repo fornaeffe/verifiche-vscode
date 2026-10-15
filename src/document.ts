@@ -8,6 +8,7 @@ import YAML, {
   Node,
 } from "yaml";
 import { resolve, type Exercise } from "./core";
+import { settingDefaults } from "./settings";
 
 export interface Patch {
   start: number;
@@ -445,10 +446,19 @@ export function variants(source: string) {
     nameStart: m.index! + m[0].indexOf(m[1]),
   }));
 }
-export function examTemplate(title: string) {
+export function examTemplate(
+  title: string,
+  traceIds: { publicId: string; firstId: string } = {
+    publicId: settingDefaults.defaultPublicTraceId,
+    firstId: settingDefaults.defaultFirstTraceId,
+  },
+) {
   return YAML.stringify({
     titolo: title,
-    tracce: [{ id: "prova", pubblica: true }, { id: "1" }],
+    tracce: [
+      { id: traceIds.publicId, pubblica: true },
+      { id: traceIds.firstId },
+    ],
     blocchi: [],
   });
 }

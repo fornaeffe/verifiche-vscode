@@ -105,9 +105,41 @@ l'apertura automatica con `verifiche.autoPreview`.
 
 Per il primo export, se Chromium non è presente, eseguire **Verifiche: Installa Chromium
 per i PDF** (richiede Internet). **Esporta PDF** stampa la traccia corrente, **Tutti i PDF**
-include anche quella pubblica. I file sono in `output/<verifica>/traccia-<traccia>.pdf`.
+include anche quella pubblica. I file sono in `output/<verifica>/traccia-<traccia>.pdf`,
+con le eventuali sottocartelle della verifica; la destinazione è configurabile.
 L'export include i contenuti correnti anche se non salvati. Errori di riferimenti,
 formule o immagini bloccano la stampa interessata, senza impedire di salvare bozze.
+
+## Nomi predefiniti e destinazione PDF
+
+Nei Settings cercare `@ext:fornaeffe.verifiche-vscode`. Le opzioni seguenti possono
+essere impostate per utente, workspace o singola cartella di un workspace multiplo;
+valgono dal comando successivo, senza riavvio.
+
+| Impostazione | Default | Utilizzo |
+| --- | --- | --- |
+| `verifiche.defaultVariantName` | `base` | Prima variante di tutti i template esercizio, anche da **Nuovo esercizio…** |
+| `verifiche.defaultPublicTraceId` | `prova` | ID della traccia pubblica nel template verifica |
+| `verifiche.defaultFirstTraceId` | `1` | ID della prima traccia ordinaria nel template verifica |
+| `verifiche.defaultExerciseFileName` | `nuovo-esercizio.md` | Nome proposto nella finestra di creazione esercizio |
+| `verifiche.outputDirectory` | `output` | Destinazione dei PDF dell’estensione |
+
+I nomi riguardano le nuove creazioni: i documenti esistenti conservano i propri nomi.
+Gli ID e il nome variante ammettono lettere ASCII, numeri, trattini e underscore,
+escludendo i nomi riservati (`default`, `undefined`, `__proto__`, `constructor`,
+`prototype`); le due tracce iniziali devono avere ID diversi. Il nome file deve
+essere un semplice nome `.md` valido anche su Windows, senza cartelle. La finestra
+di salvataggio permette di cambiarlo e scegliere la cartella. Le tracce aggiunte
+successivamente usano il primo numero libero; aggiunta e rinomina variante
+continuano a chiedere un nome. Un valore invalido blocca soltanto il comando
+interessato, con un messaggio che identifica l’impostazione da correggere.
+
+`outputDirectory` accetta un percorso relativo alla radice della cartella workspace
+della verifica, oppure assoluto, anche esterno al workspace. Variabili come
+`${workspaceFolder}`, `~` e URI non sono supportati. Le cartelle vengono create se
+mancano e i PDF omonimi vengono sovrascritti. Con `contentDirectory` annidato,
+`output` resta nella radice del workspace: prima era nel genitore dei contenuti.
+La CLI mantiene la destinazione precedente e non legge i settings VS Code.
 
 ## Strumenti da riga di comando
 

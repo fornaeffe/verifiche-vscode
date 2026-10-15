@@ -10,6 +10,13 @@ acquisiscono i testi dei buffer aperti all'inizio dello snapshot. `commands.ts` 
 `providers.ts` applicano WorkspaceEdit, CodeLens, azioni, completamento, definizioni,
 ricerca utilizzi, rinomina e trasferimenti di immagini/esercizi.
 
+`settings.ts` contiene default e validazione dei nomi di creazione e della
+destinazione PDF, senza dipendere da VS Code. `host.settings(uri)` legge la
+configurazione della risorsa a ogni operazione; ciascun comando valida solo i
+valori che usa, prima delle modifiche o dell’export. I template ricevono i nomi
+come parametri. L’estensione risolve l’output rispetto alla radice workspace del
+documento e lo passa a `exportPDF`; la CLI conserva il default del motore.
+
 `preview.ts` tiene una sola webview: segue l'editor e passa temporaneamente al
 selettore varianti. I contenuti sono in iframe senza script. CSS, font e immagini
 necessari sono incorporati negli iframe, perché le risorse dei documenti srcdoc
@@ -39,8 +46,11 @@ npm run test:integration
 npm run package
 ```
 
-I test d'integrazione aprono una copia temporanea delle fixture in un Extension
-Development Host isolato. Scaricano VS Code 1.100.0, oppure usano il percorso
+I test d'integrazione aprono due copie temporanee delle fixture in un workspace
+multi-root e in un Extension Development Host isolato, con impostazioni distinte
+per cartella e contenuti annidati nella seconda. Provano anche cambi dei settings
+senza riavvio e PDF reali nelle destinazioni relative e assolute configurate.
+Scaricano VS Code 1.100.0, oppure usano il percorso
 `VSCODE_EXECUTABLE` se impostato. Verificano anche il selettore nella webview reale
 attraverso una porta CDP locale effimera, usata soltanto dai test. Screenshot e log
 sono esclusi da Git. F5 usa invece la configurazione in `.vscode/launch.json`.

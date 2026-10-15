@@ -3,6 +3,12 @@ import path from "node:path";
 import fs from "node:fs";
 import { Repository, relativeId } from "./repository";
 import { Patch } from "./document";
+import { Settings } from "./settings";
+
+export function settings(uri: vscode.Uri) {
+  const configuration = vscode.workspace.getConfiguration("verifiche", uri);
+  return new Settings((key) => configuration.get(key));
+}
 
 export interface Location {
   root: string;

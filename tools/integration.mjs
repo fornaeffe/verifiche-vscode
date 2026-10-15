@@ -12,6 +12,29 @@ try {
   await fs.cp("test/fixtures/workspace", path.join(temp, "workspace"), {
     recursive: true,
   });
+  const secondRoot = path.join(temp, "second-workspace");
+  await fs.cp("test/fixtures/workspace", path.join(secondRoot, "archivio"), {
+    recursive: true,
+  });
+  await fs.mkdir(path.join(secondRoot, ".vscode"), { recursive: true });
+  await fs.writeFile(
+    path.join(secondRoot, ".vscode/settings.json"),
+    JSON.stringify({
+      "verifiche.contentDirectory": "archivio/contenuti",
+      "verifiche.defaultVariantName": "seconda",
+      "verifiche.defaultPublicTraceId": "modello",
+      "verifiche.defaultFirstTraceId": "Z",
+      "verifiche.defaultExerciseFileName": "secondo.md",
+      "verifiche.outputDirectory": "pdf/secondo",
+    }),
+  );
+  const workspaceFile = path.join(temp, "integration.code-workspace");
+  await fs.writeFile(
+    workspaceFile,
+    JSON.stringify({
+      folders: [{ path: "workspace" }, { path: "second-workspace" }],
+    }),
+  );
   await build({
     entryPoints: ["test/integration/suite.ts"],
     bundle: true,
@@ -33,7 +56,7 @@ try {
       ? { vscodeExecutablePath: executable }
       : { version: "1.100.0" }),
     launchArgs: [
-      path.join(temp, "workspace"),
+      workspaceFile,
       "--disable-extensions",
       "--skip-welcome",
       "--skip-release-notes",
@@ -43,6 +66,7 @@ try {
     ],
     extensionTestsEnv: {
       VERIFICHE_TEST_ROOT: path.join(temp, "workspace"),
+      VERIFICHE_TEST_SECOND_ROOT: secondRoot,
       VERIFICHE_UI_TEST: temp,
     },
   });

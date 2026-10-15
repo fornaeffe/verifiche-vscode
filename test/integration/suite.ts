@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import fs from "node:fs/promises";
 import { structure } from "../../src/document";
+import { checkSettings } from "./settings";
 
 export async function run() {
   const root = process.env.VERIFICHE_TEST_ROOT!;
@@ -69,7 +70,9 @@ export async function run() {
     await fs.writeFile(path.join(temp, "ui-ready-formula"), "ready");
     const deadline = Date.now() + 30000;
     while (
-      !exerciseDocument.getText().endsWith("$\\ce{}$") &&
+      (!exerciseDocument.getText().endsWith("$\\ce{}$") ||
+        exerciseDocument.offsetAt(editor.selection.active) !==
+          before.length + 5) &&
       Date.now() < deadline
     )
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -370,6 +373,7 @@ blocchi:
   await vscode.commands.executeCommand("verifiche.addTrace", brokenUri);
   assert.equal(brokenDoc.getText(), brokenSource);
   assert.equal(brokenDoc.isDirty, false);
+  await checkSettings(api.preview);
   api.preview.dispose();
   console.log(
     "PASS: activation, chemical formula command/keyboard/cursor/undo/redo and default binding conflicts, reduced CodeLens, contextual Code Actions, picker cancel/select without duplicate editors, trace auto-assignment/unsaved buffers/exhaustion/undo/redo/read errors, definition, template, focus preview, exercise drop/default points/settings/undo/redo, image paste, rename references",

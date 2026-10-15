@@ -1,4 +1,6 @@
-﻿export const exerciseTemplates = [
+﻿import { settingDefaults } from "./settings";
+
+export const exerciseTemplates = [
   {
     type: "A",
     name: "Risposta aperta",
@@ -45,7 +47,11 @@ La __________ è __________.`,
 
 export type ExerciseTemplateType = (typeof exerciseTemplates)[number]["type"];
 
-export function exerciseTemplate(id: string, type: ExerciseTemplateType) {
+export function exerciseTemplate(
+  id: string,
+  type: ExerciseTemplateType,
+  variantName: string = settingDefaults.defaultVariantName,
+) {
   const template = exerciseTemplates.find((item) => item.type === type);
   if (!template) throw Error("Template esercizio non valido");
   return `---
@@ -53,7 +59,7 @@ tipo: ${type}
 titolo: ${id}
 ---
 
-:::variante base
+:::variante ${variantName}
 ${template.body}
 :::
 `;

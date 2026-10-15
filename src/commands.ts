@@ -28,6 +28,7 @@ import {
   addPatches,
   readDocument,
   errorMessage,
+  settings,
 } from "./host";
 import { enumerate, exercisePath, relativeId } from "./repository";
 import { Preview } from "./preview";
@@ -134,8 +135,15 @@ export function registerCommands(
         throw Error("Il template richiede un file vuoto");
       const source =
         loc.kind === "verifiche"
-          ? examTemplate(path.basename(doc.uri.fsPath).replace(/\.ya?ml$/i, ""))
-          : exerciseTemplate(path.basename(doc.uri.fsPath, ".md"), type ?? "A");
+          ? examTemplate(
+              path.basename(doc.uri.fsPath).replace(/\.ya?ml$/i, ""),
+              settings(doc.uri).traceIds(),
+            )
+          : exerciseTemplate(
+              path.basename(doc.uri.fsPath, ".md"),
+              type ?? "A",
+              settings(doc.uri).variantName(),
+            );
       await apply(doc, doc.version, [
         {
           start: 0,
@@ -185,9 +193,12 @@ export function registerCommands(
         if (!picked) return;
         let id: string;
         if (!picked.file) {
+          const defaults = settings(doc.uri);
+          const fileName = defaults.exerciseFileName();
+          const variantName = defaults.variantName();
           created = await vscode.window.showSaveDialog({
             defaultUri: vscode.Uri.file(
-              path.join(loc.base, "esercizi", "nuovo-esercizio.md"),
+              path.join(loc.base, "esercizi", fileName),
             ),
             filters: { Esercizio: ["md"] },
             title: "Crea esercizio",
@@ -206,7 +217,9 @@ export function registerCommands(
           extra = new vscode.WorkspaceEdit();
           extra.createFile(created, {
             overwrite: false,
-            contents: Buffer.from(exerciseTemplate(path.basename(id), "A")),
+            contents: Buffer.from(
+              exerciseTemplate(path.basename(id), "A", variantName),
+            ),
           });
         } else id = relativeId(path.join(loc.base, "esercizi"), picked.file);
         patch = await exerciseInsertion(doc, at, id, !!created, side);
@@ -382,6 +395,7 @@ export function registerCommands(
     const loc = locate(doc.uri)!;
     if (loc.kind !== "verifiche")
       throw Error("Aprire una verifica per esportare");
+    const outputRoot = settings(doc.uri).outputDirectory(loc.root);
     const s = await repository(loc.base).snapshot(doc.uri.fsPath);
     const trace = preview.currentTrace(doc) ?? String(s.exam.tracce[0].id);
     const files = await vscode.window.withProgress(
@@ -394,17 +408,19 @@ export function registerCommands(
           s,
           all ? s.exam.tracce.map((t: any) => String(t.id)) : [trace],
           context.asAbsolutePath("dist"),
+          outputRoot,
         ),
     );
-    const action = await vscode.window.showInformationMessage(
-      `${files.length} PDF generati`,
-      "Apri cartella",
-    );
-    if (action)
-      await vscode.commands.executeCommand(
-        "revealFileInOS",
-        vscode.Uri.file(files[0]),
-      );
+    void vscode.window
+      .showInformationMessage(`${files.length} PDF generati`, "Apri cartella")
+      .then((action) => {
+        if (action)
+          return vscode.commands.executeCommand(
+            "revealFileInOS",
+            vscode.Uri.file(files[0]),
+          );
+      });
+    return files;
   };
   register("export", () => pdf(false));
   register("exportAll", () => pdf(true));

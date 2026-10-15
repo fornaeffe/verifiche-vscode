@@ -98,8 +98,8 @@ Applicare modifiche tramite le API documentali VS Code. Verificare annulla/ripri
 
 ### 4.2 Nuovi file e aggiunta esercizio
 
-- File `.yaml`/`.yml` vuoto dentro verifiche: proposta non modale «Inserisci template verifica», una sola azione. Titolo provvisorio dal nome file, tracce iniziali configurate dal template e lista blocchi vuota modificabile.
-- File `.md` vuoto dentro esercizi: «Inserisci template esercizio», una sola azione per il minimo; scelta dei tipi disponibile separatamente. Nessun ID scritto nel file.
+- File `.yaml`/`.yml` vuoto dentro verifiche: proposta non modale «Inserisci template verifica», una sola azione. Titolo provvisorio dal nome file, traccia pubblica e prima ordinaria con ID configurabili nei settings e lista blocchi vuota modificabile.
+- File `.md` vuoto dentro esercizi: «Inserisci template esercizio», una sola azione per il minimo; scelta dei tipi disponibile separatamente. Nome della prima variante configurabile per tutti i template, anche creando un esercizio dalla verifica; nome file proposto configurabile nella finestra di salvataggio. Nessun ID scritto nel file.
 - Aggiungi blocco prima/dopo: selettore del tipo; template immediato per gruppo, istruzioni, contenuto e salto pagina. Azione dedicata dentro liste/gruppi vuoti.
 - Aggiungi esercizio esistente: selettore nativo ricercabile di percorsi, con scelta «Nuovo esercizio…». Non costruire una ricerca per contenuto alternativa a quella di VS Code.
 - Nuovo esercizio dal comando: finestra nativa di salvataggio per cartella e nome, modello minimo, apertura della scheda e inserimento del riferimento. Partire dalla cartella contestuale selezionata, se pertinente, altrimenti dalla radice esercizi; non implementare inizialmente una gerarchia di euristiche su ultimo percorso ed esercizio precedente. Creazione anche da Explorer, seguita da inserimento nella verifica, sempre supportata.
@@ -140,7 +140,7 @@ Provare presto il gesto di drop dall'Explorer verso l'editor, incluse le eventua
 - Passaggio esplicito a un altro documento chiude la selezione temporanea senza applicarla e mostra l'anteprima di quel documento.
 - Aggiornamento breve e ritardato durante la digitazione; scartare risposte obsolete. Anteprima errata: messaggio chiaro, niente risultato vecchio presentato come corrente.
 - Snapshot coerente di verifica ed esercizi, inclusi buffer non salvati, condiviso fra anteprima ed export. Il PDF non deve rileggere silenziosamente versioni diverse dal disco; non forzare il salvataggio di tutti i documenti.
-- Export traccia corrente o tutte (pubblica inclusa), destinazione nel repo dati. Stili e allegati risolti rispetto ai dati; risorse dell'estensione risolte rispetto alla sua installazione.
+- Export traccia corrente o tutte (pubblica inclusa), destinazione configurabile con `verifiche.outputDirectory`: relativa alla radice workspace della verifica oppure assoluta, anche esterna ai dati. Default `output`, indipendente dalla profondità di `contentDirectory`; conservare sottocartelle della verifica e nomi `traccia-<id>.pdf`. La CLI mantiene il default nel genitore dei contenuti e non legge i settings VS Code. Stili e allegati risolti rispetto ai dati; risorse dell'estensione risolte rispetto alla sua installazione.
 - Riutilizzare Playwright per la stampa; prevedere installazione di Chromium, gestione errori, attesa immagini/font e lavoro offline dopo il setup. Non dipendere dal vecchio server web permanente; un servizio locale temporaneo interno all'export è una scelta implementativa possibile.
 - Distinguere anteprima HTML da resa paginata del PDF; verificare impaginazione reale su campioni. Isolare HTML dei contenuti dai comandi della webview e limitare accesso alle risorse locali necessarie.
 
@@ -276,6 +276,14 @@ Per riprendere il lavoro:
 - Verificati collegamenti relativi, separazione dei documenti privati e diff Git.
   Nessun nuovo test software, pacchetto, installazione, commit o push in questa consegna.
   Per il prossimo intervento scegliere un’attività nel TODO; non ripartire da F0.
+- Consegna settings, 15 ottobre 2026: implementate le cinque opzioni descritte nel
+  [README](../../README.md#nomi-predefiniti-e-destinazione-pdf), con validazione per
+  operazione e ambito per risorsa; anche `contentDirectory` supporta valori distinti
+  per cartella. Superati 21 test di dominio, build ed Extension Host su VS Code
+  1.100.0: template, impostazioni aggiornate senza riavvio, due cartelle workspace,
+  contenuti annidati, configurazioni invalide ed export corrente/tutti in PDF reali
+  su percorsi relativi e assoluti. Il collaudo della finestra nativa resta nel TODO.
+  Nessun nuovo VSIX, installazione nel profilo ordinario, commit o push.
 
 ## 10. Riferimenti tecnici verificati nella valutazione
 

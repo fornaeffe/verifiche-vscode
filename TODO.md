@@ -2,7 +2,10 @@
 
 ## Miglioramenti raccolti durante l’uso
 
-- [ ] Esporre in settings i nomi di default (ad esempio il nome di default della prima variante) e il percorso di output
+- [x] Esporre in settings i nomi di default e il percorso di output: cinque opzioni
+  documentate nel [README](README.md#nomi-predefiniti-e-destinazione-pdf).
+  Verificati 21 test di dominio, build ed Extension Host su VS Code 1.100.0 con
+  due cartelle workspace, modifiche senza riavvio ed export PDF reali.
 - [ ] Documentare la produzione del file installabile dell'estensione
 
 ## Previsioni del piano iniziale ancora parziali
@@ -48,7 +51,7 @@ I casi sotto non hanno ancora un esito specifico registrato; non indicano difett
 Usare fixture sintetiche e profili isolati per le prove tecniche.
 
 - [ ] **Finestra nativa di creazione esercizio** (F1/F4): registrare la prova di
-  selezione cartella/nome, annullamento senza file o riferimento residuo e recupero
+  selezione cartella/nome (anche con nome proposto configurato), annullamento senza file o riferimento residuo e recupero
   da errore parziale. La funzionalità è implementata; l’ultimo checkpoint la lasciava
   al collaudo specifico dell’utilizzatore.
 - [ ] **Rinomina/spostamento di una cartella da Explorer** (F3): verificare gli

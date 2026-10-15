@@ -161,6 +161,7 @@
         "verifiche.contentDirectory": {
           "type": "string",
           "default": "contenuti",
+          "scope": "resource",
           "description": "Cartella dei contenuti relativa alla radice del workspace."
         },
         "verifiche.autoPreview": {
@@ -173,6 +174,41 @@
           "default": true,
           "scope": "resource",
           "description": "Assegna punti: 1 agli esercizi aggiunti alla verifica tramite inserimento o trascinamento, salvo nei gruppi con un punteggio già impostato."
+        },
+        "verifiche.defaultVariantName": {
+          "type": "string",
+          "default": "base",
+          "scope": "resource",
+          "pattern": "^(?!(?:default|undefined|__proto__|constructor|prototype)$)[a-zA-Z0-9_-]+$",
+          "description": "Nome della prima variante nei nuovi esercizi, per tutti i template. Usare lettere, numeri, trattini o underscore; i nomi riservati non sono ammessi."
+        },
+        "verifiche.defaultPublicTraceId": {
+          "type": "string",
+          "default": "prova",
+          "scope": "resource",
+          "pattern": "^(?!(?:default|undefined|__proto__|constructor|prototype)$)[a-zA-Z0-9_-]+$",
+          "description": "ID della traccia pubblica nei nuovi template verifica. Deve essere diverso da Default First Trace Id. Usare lettere, numeri, trattini o underscore; i nomi riservati non sono ammessi."
+        },
+        "verifiche.defaultFirstTraceId": {
+          "type": "string",
+          "default": "1",
+          "scope": "resource",
+          "pattern": "^(?!(?:default|undefined|__proto__|constructor|prototype)$)[a-zA-Z0-9_-]+$",
+          "description": "ID della prima traccia ordinaria nei nuovi template verifica. Deve essere diverso da Default Public Trace Id. Le tracce aggiunte successivamente usano il primo numero libero."
+        },
+        "verifiche.defaultExerciseFileName": {
+          "type": "string",
+          "default": "nuovo-esercizio.md",
+          "scope": "resource",
+          "minLength": 4,
+          "description": "Nome di file .md proposto nella finestra Nuovo esercizio. Usare un semplice nome valido anche su Windows, senza cartelle; la destinazione si sceglie nella finestra di salvataggio."
+        },
+        "verifiche.outputDirectory": {
+          "type": "string",
+          "default": "output",
+          "scope": "resource",
+          "minLength": 1,
+          "description": "Cartella dei PDF: percorso relativo alla radice della cartella workspace della verifica, oppure assoluto. Sono ammessi percorsi esterni al workspace; variabili, ~ e URI non vengono espansi. Conserva le sottocartelle delle verifiche e sovrascrive i PDF omonimi."
         }
       }
     }
