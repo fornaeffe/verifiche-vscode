@@ -1,5 +1,5 @@
 - [ ] Aggiungere un shortcut da tastiera per l'inserimento di una formula chimica: lo shortcut non deve sovrapporsi ad uno shortcut già esistente di VSCode e deve aggiungere automaticamente `$\ce{}$` posizionando il cursore tra le due parentesi graffe.
-- [ ] Un esercizio incollato fuori da un gruppo dovrebbe avere già `punti: 1`
-- [ ] Quando si clicca "Aggiungi traccia" per aggiungere una traccia alla verifica, l'estensione dovrebbe automaticamente associare alla nuova traccia una versione non ancora utilizzata (se presente) di ciascun esercizio.
+- [ ] Un esercizio incollato dovrebbe avere già `punti: 1`, a meno che non venga incollato all'interno di un gruppo che abbia già un numero di punti come gruppo.
+- [ ] Quando si clicca "Aggiungi traccia" per aggiungere una traccia alla verifica, l'estensione dovrebbe automaticamente associare alla nuova traccia una versione non ancora utilizzata (se presente) di ciascun esercizio (la prima non utilizzata, nell'ordine in cui sono scritte).
 - [ ] Esporre in settings i nomi di default (ad esempio il nome di default della prima variante) e il percorso di output
 - [ ] Documentare la produzione del file installabile dell'estensione
