@@ -24,6 +24,14 @@ non sono gestite come quelle del documento principale dal service worker VS Code
 Il pannello dei comandi usa messaggi validati rispetto al documento e alla sua
 versione. I contenuti non ricevono il nonce degli script del pannello.
 
+`dependencies.ts` conserva i percorsi usati dall’anteprima corrente (anche nel
+selettore) e, separatamente, dalla diagnostica dei documenti visibili o in anteprima.
+`extension.ts` filtra e raggruppa gli eventi dei buffer e del filesystem su questi
+insiemi, senza scansioni globali; un’anteprima già ricalcolata dopo un evento non
+viene aggiornata di nuovo per quell’evento. I riferimenti mancanti sono registrati
+prima delle letture per rilevarne la creazione. Allegati e stile personalizzato
+seguono la propria radice workspace; la chiusura del pannello libera i suoi riferimenti.
+
 `pdf.ts` stampa tramite Chromium un insieme già acquisito di sorgenti e risorse.
 Il server HTTP è temporaneo, su loopback e porta casuale; serve soltanto le risorse
 precaricate. Non occorre avviare un'applicazione web separata.
@@ -54,6 +62,8 @@ Scaricano VS Code 1.100.0, oppure usano il percorso
 `VSCODE_EXECUTABLE` se impostato. Verificano anche il selettore nella webview reale
 attraverso una porta CDP locale effimera, usata soltanto dai test. Screenshot e log
 sono esclusi da Git. F5 usa invece la configurazione in `.vscode/launch.json`.
+La suite controlla anche i refresh e le diagnosi effettivamente invocati: dipendenze
+modificate, file estranei, buffer non salvati, risorse mancanti e radici distinte.
 
 Per provare un VSIX senza il checkout del sorgente, installarlo in un profilo VS Code
 separato e aprire una cartella dati. Il motore non deve importare file da repository

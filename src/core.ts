@@ -277,7 +277,12 @@ function points(n: any) {
     throw Error("Punteggio non valido: " + n);
   return `<span class="punti">[　　 punti su ${n.toLocaleString("it-IT")}]</span>`;
 }
-export function render(v: any, trace: string, lib: Library) {
+export function render(
+  v: any,
+  trace: string,
+  lib: Library,
+  onDependency?: (file: string) => void,
+) {
   const t = v.tracce.find((t: any) => String(t.id) === trace);
   if (!t) throw Error("Traccia inesistente");
   let count = 0,
@@ -328,23 +333,30 @@ export function render(v: any, trace: string, lib: Library) {
     /(src|href)="(?:\.\.\/)*allegati\/([^"?#]+)"/g,
     '$1="/allegati/$2"',
   );
-  for (const m of body.matchAll(/<img\b[^>]*src=["']([^"']+)["']/gi)) {
+  const images = [...body.matchAll(/<img\b[^>]*src=["']([^"']+)["']/gi)];
+  const localImages = images.map((m) => {
+    if (!m[1].startsWith("/allegati/")) return;
+    const file = safe(
+      path.join(lib.base, "allegati"),
+      decodeURIComponent(m[1].slice(10)),
+    );
+    onDependency?.(file);
+    return file;
+  });
+  for (const [index, m] of images.entries()) {
     if (!m[1].startsWith("/allegati/"))
       throw Error("Immagine: usare allegati locali: " + m[1]);
-    if (
-      !fs.existsSync(
-        safe(
-          path.join(lib.base, "allegati"),
-          decodeURIComponent(m[1].slice(10)),
-        ),
-      )
-    )
+    if (!fs.existsSync(localImages[index]!))
       throw Error("Allegato mancante: " + m[1]);
   }
   const html = `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>${esc(v.titolo)} — ${esc(trace)}</title><link rel="stylesheet" href="/vendor/katex.min.css"><link rel="stylesheet" href="/stili/predefinito.css"></head><body><div class="header"><span>Nome e cognome: ____________________</span><span>Classe: ______</span><span>Data: __________</span></div><h1>${esc(v.titolo)}</h1><div class="traccia">${esc(t.pubblica ? "Traccia di esempio" : t.etichetta || "Traccia " + trace)}</div>${body}<footer>Totale: ${total.toLocaleString("it-IT")} punti</footer></body></html>`;
   return { html, total, count, order };
 }
-export function validate(v: any, lib: Library) {
+export function validate(
+  v: any,
+  lib: Library,
+  onDependency?: (file: string) => void,
+) {
   const errors: string[] = [],
     warnings: string[] = [],
     tracce: any[] = [];
@@ -364,7 +376,7 @@ export function validate(v: any, lib: Library) {
         );
     }
     try {
-      const { html, ...r } = render(v, String(t.id), lib);
+      const { html, ...r } = render(v, String(t.id), lib, onDependency);
       tracce.push({ id: String(t.id), ...r });
       if (new Set(r.order).size !== r.order.length)
         warnings.push(`Traccia ${t.id}: esercizi ripetuti`);

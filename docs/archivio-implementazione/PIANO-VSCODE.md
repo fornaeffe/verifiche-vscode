@@ -182,6 +182,8 @@ Completata quando il flusso reale è provabile dall'utente senza shell per le op
 - [x] Implementare intervalli sorgente, modifiche minime, cache limitata e snapshot dei buffer aperti.
 - [x] Gestire file incompleti, liste/mappe vuote e diagnostica locale; le azioni strutturali richiedono un contesto YAML analizzabile, il salvataggio resta sempre nativo.
 - [x] Testare commenti, rientri, CRLF, gruppi annidati, forme alternative e buffer sporchi.
+- [x] Aggiornamenti circoscritti alle dipendenze di anteprima e diagnostica attive,
+  senza grafo globale; verificati anche file mancanti e buffer non salvati.
 
 Completata quando le operazioni non riscrivono il resto del documento e gli errori estranei non bloccano il lavoro. F1 può anticipare una porzione minima di questa fase senza duplicarne il motore.
 
@@ -211,7 +213,9 @@ Completata quando sono coperti i flussi della sezione 4 senza pannelli gestional
 - [x] Export corrente/tutte con buffer non salvati, setup Chromium e output implementati. PDF testati con Chromium già presente.
 - [ ] Completare la condivisione dello snapshot tra anteprima ed export, incluse le risorse; collaudare il primo download di Chromium. Dettagli nel TODO.
 - [x] Misure di reattività alla scala di riferimento e 3×, senza caricamento globale all’avvio.
-- [ ] Completare gli aggiornamenti limitati alle dipendenze attive e la cancellazione delle scansioni previste dalla sezione 3; vedere TODO.
+- [x] Aggiornamenti limitati alle dipendenze attive, compresi allegati, stile e
+  selettore varianti; verificato l’isolamento tra radici workspace.
+- [ ] Completare la cancellazione delle scansioni prevista dalla sezione 3; vedere TODO.
 
 Completata quando la stampa corrisponde ai contenuti mostrati, le immagini funzionano offline e gli errori non producono PDF dichiarati validi.
 
@@ -284,6 +288,14 @@ Per riprendere il lavoro:
   contenuti annidati, configurazioni invalide ed export corrente/tutti in PDF reali
   su percorsi relativi e assoluti. Il collaudo della finestra nativa resta nel TODO.
   Nessun nuovo VSIX, installazione nel profilo ordinario, commit o push.
+- Consegna dipendenze attive, 15 ottobre 2026: eventi dei buffer e del filesystem
+  filtrati sui riferimenti correnti di anteprima/selettore e diagnostica visibile,
+  registrati anche prima delle letture fallite. Superati 24 test di dominio, build
+  ed Extension Host su VS Code 1.100.0 con fixture sintetiche: assenza di refresh
+  estranei, buffer non salvati, due radici, recupero di file/allegati mancanti,
+  creazione/cancellazione dello stile, sostituzione dei riferimenti e pannello chiuso.
+  Restano aperte le altre attività del TODO. Nessun nuovo VSIX, installazione nel
+  profilo ordinario, commit o push.
 
 ## 10. Riferimenti tecnici verificati nella valutazione
 

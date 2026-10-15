@@ -5,7 +5,8 @@ import crypto from "node:crypto";
 import { content, esc, exercise, render, validate, safe } from "./core";
 import { variants, structure, mapSet } from "./document";
 import { locate, repository, apply, errorMessage, Location } from "./host";
-import { Snapshot } from "./repository";
+import { Snapshot, exercisePath } from "./repository";
+import { Dependencies } from "./dependencies";
 
 export class Preview {
   panel?: vscode.WebviewPanel;
@@ -14,17 +15,25 @@ export class Preview {
   traces = new Map<string, string>();
   private generation = 0;
   private katexCss?: string;
+  private dependencies?: Dependencies;
   private picker?: {
     doc: vscode.TextDocument;
     version: number;
     refStart: number;
     trace: string;
+    id: string;
     ids: Set<string>;
   };
   onExport?: (all: boolean) => void;
   constructor(private context: vscode.ExtensionContext) {}
   dispose() {
     this.panel?.dispose();
+  }
+  dependsOn(uri: vscode.Uri) {
+    return !!this.panel && !!this.dependencies?.affects(uri.fsPath);
+  }
+  get revision() {
+    return this.generation;
   }
   async show(doc: vscode.TextDocument, force = false) {
     if (!locate(doc.uri)) return;
@@ -60,6 +69,8 @@ export class Preview {
     this.panel.onDidDispose(() => {
       this.panel = undefined;
       this.picker = undefined;
+      this.dependencies = undefined;
+      this.snapshot = undefined;
       this.generation++;
     });
     this.panel.webview.onDidReceiveMessage(async (m) => {
@@ -104,14 +115,11 @@ export class Preview {
     return doc ? this.traces.get(doc.uri.toString()) : undefined;
   }
   async choose(doc: vscode.TextDocument, refStart: number, trace: string) {
-    const loc = locate(doc.uri)!;
     const version = doc.version,
       ref = structure(doc.getText()).references.find(
         (r) => r.node.range?.[0] === refStart,
       );
     if (!ref) throw Error("Esercizio non trovato");
-    const e = await repository(loc.base).getExercise(ref.id);
-    if (doc.version !== version) throw Error("Documento cambiato");
     this.document = doc;
     this.ensure();
     this.generation++;
@@ -120,24 +128,46 @@ export class Preview {
       version,
       refStart,
       trace,
-      ids: new Set(["", ...Object.keys(e.varianti)]),
+      id: ref.id,
+      ids: new Set(),
     };
-    const cards = e.variantOrder.map((id) => ({
-      id,
-      html: this.page(
-        `<h2>${esc(id)}</h2>${content(e.varianti[id], e.tipo, !!e.origine)}`,
-        loc,
-      ),
-    }));
-    this.setHtml(loc, `Scegli variante — ${ref.id} / ${trace}`, cards, true);
+    await this.refresh();
     this.panel!.reveal(vscode.ViewColumn.Beside, false);
   }
   async refresh() {
-    if (!this.panel || !this.document || this.picker) return;
+    if (!this.panel || !this.document) return;
     const generation = ++this.generation,
       doc = this.document,
-      loc = locate(doc.uri)!;
+      loc = locate(doc.uri)!,
+      dependencies = new Dependencies(
+        doc.uri.fsPath,
+        path.join(loc.root, "stili/predefinito.css"),
+      );
+    this.dependencies = dependencies;
+    this.snapshot = undefined;
     try {
+      if (this.picker) {
+        const picker = this.picker;
+        dependencies.add(exercisePath(loc.base, picker.id));
+        const e = await repository(loc.base).getExercise(picker.id);
+        if (generation !== this.generation) return;
+        const cards = e.variantOrder.map((id) => ({
+          id,
+          html: this.page(
+            `<h2>${esc(id)}</h2>${content(e.varianti[id], e.tipo, !!e.origine)}`,
+            loc,
+            dependencies,
+          ),
+        }));
+        picker.ids = new Set(["", ...Object.keys(e.varianti)]);
+        this.setHtml(
+          loc,
+          `Scegli variante — ${picker.id} / ${picker.trace}`,
+          cards,
+          true,
+        );
+        return;
+      }
       const cards: { id: string; html: string }[] = [];
       let controls = "",
         warnings: string[] = [];
@@ -150,18 +180,25 @@ export class Preview {
             html: this.page(
               `<h2>${esc(v.id)}</h2>${content(v.body, e.tipo, !!e.origine)}`,
               loc,
+              dependencies,
             ),
           });
       } else {
-        const s = await repository(loc.base).snapshot(doc.uri.fsPath);
+        const s = await repository(loc.base).snapshot(
+          doc.uri.fsPath,
+          dependencies.add,
+        );
         let trace = this.currentTrace(doc);
         if (!s.exam.tracce.some((t: any) => String(t.id) === trace))
           trace = String(s.exam.tracce[0].id);
         this.traces.set(doc.uri.toString(), trace!);
-        const result = render(s.exam, trace!, s.library),
-          v = validate(s.exam, s.library);
+        const v = validate(s.exam, s.library, dependencies.add),
+          result = render(s.exam, trace!, s.library, dependencies.add);
         warnings = v.warnings;
-        cards.push({ id: trace!, html: this.resources(result.html, loc) });
+        cards.push({
+          id: trace!,
+          html: this.resources(result.html, loc, dependencies),
+        });
         controls = `<select id="trace" aria-label="Traccia">${s.exam.tracce.map((t: any) => `<option value="${esc(t.id)}" ${String(t.id) === trace ? "selected" : ""}>${esc(t.etichetta ?? t.id)}</option>`).join("")}</select><button id="pdf">Esporta PDF</button><button id="all">Tutti i PDF</button>`;
         if (generation === this.generation) this.snapshot = s;
       }
@@ -177,13 +214,14 @@ export class Preview {
     } catch (e) {
       if (generation === this.generation) {
         this.snapshot = undefined;
-        this.setHtml(loc, "Anteprima non disponibile", [], false, "", [
+        if (this.picker) this.picker.ids.clear();
+        this.setHtml(loc, "Anteprima non disponibile", [], !!this.picker, "", [
           errorMessage(e),
         ]);
       }
     }
   }
-  private resources(html: string, loc: Location) {
+  private resources(html: string, loc: Location, dependencies: Dependencies) {
     const css = path.join(loc.root, "stili/predefinito.css");
     // srcdoc frames are isolated from VS Code's resource service worker. Embed only
     // the resources used by this preview; never expose file:// or external URLs.
@@ -212,12 +250,19 @@ export class Preview {
       ".webp": "image/webp",
       ".svg": "image/svg+xml",
     };
+    const attachments = /(["'])(?:\.\.\/)*\/?allegati\/([^"']+)\1/g;
+    const files = new Map<string, string>();
+    for (const match of html.matchAll(attachments)) {
+      const file = safe(
+        path.join(loc.base, "allegati"),
+        decodeURIComponent(match[2]),
+      );
+      dependencies.add(file);
+      files.set(match[2], file);
+    }
     return html
-      .replace(/(["'])(?:\.\.\/)*\/?allegati\/([^"']+)\1/g, (_m, q, p) => {
-        const file = safe(
-          path.join(loc.base, "allegati"),
-          decodeURIComponent(p),
-        );
+      .replace(attachments, (_m, q, p) => {
+        const file = files.get(p)!;
         return (
           q +
           `data:${mime[path.extname(file).toLowerCase()] ?? "application/octet-stream"};base64,${fs.readFileSync(file).toString("base64")}` +
@@ -233,10 +278,11 @@ export class Preview {
         `<style>${style}</style>`,
       );
   }
-  private page(body: string, loc: Location) {
+  private page(body: string, loc: Location, dependencies: Dependencies) {
     return this.resources(
       `<!doctype html><html><head><link rel="stylesheet" href="/vendor/katex.min.css"><link rel="stylesheet" href="/stili/predefinito.css"><style>html{background:white;color:black}body{font:15px Arial,sans-serif!important;width:auto!important;max-width:none!important;margin:14px!important}h2{font-size:16px;margin-top:0}</style></head><body>${body}</body></html>`,
       loc,
+      dependencies,
     );
   }
   private setHtml(

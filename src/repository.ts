@@ -72,16 +72,25 @@ export class Repository {
       this.cache.delete(this.cache.keys().next().value!);
     return value;
   }
-  async snapshot(file: string): Promise<Snapshot> {
+  async snapshot(
+    file: string,
+    onDependency?: (file: string) => void,
+  ): Promise<Snapshot> {
     // One immutable view of sources per operation, even if the caller's buffers later change.
     const read = this.freeze?.() ?? this.read;
+    onDependency?.(file);
     const source = await read(file),
       v = exam(source),
       sources = new Map([[file, source]]),
       exercises = new Map<string, Exercise>();
-    for (const id of new Set(uses(v.blocchi).map((u) => u.id as string))) {
-      const p = exercisePath(this.base, id),
-        s = await read(p);
+    const references = [
+      ...new Set(uses(v.blocchi).map((u) => u.id as string)),
+    ].map((id) => ({ id, file: exercisePath(this.base, id) }));
+    // Register every reference before reading: the first missing file must not
+    // hide later dependencies from create/change events.
+    references.forEach(({ file }) => onDependency?.(file));
+    for (const { id, file: p } of references) {
+      const s = await read(p);
       sources.set(p, s);
       exercises.set(id, this.cachedExercise(p, s, id));
     }

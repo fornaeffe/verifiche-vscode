@@ -11,6 +11,13 @@ export function activate(context: vscode.ExtensionContext) {
   registerCommands(context, preview);
   context.subscriptions.push(preview, { dispose: clearRepositories });
   let timer: ReturnType<typeof setTimeout> | undefined;
+  const documents = () =>
+    [
+      ...new Set([
+        ...vscode.window.visibleTextEditors.map((e) => e.document),
+        ...(preview.panel && preview.document ? [preview.document] : []),
+      ]),
+    ].filter((doc) => !doc.isClosed && locate(doc.uri));
   const active = async (editor?: vscode.TextEditor) => {
     const loc = editor ? locate(editor.document.uri) : undefined;
     await vscode.commands.executeCommand(
@@ -27,29 +34,57 @@ export function activate(context: vscode.ExtensionContext) {
       void providers.diagnose(editor.document);
       await preview.show(editor.document);
     }
+    providers.retain(documents());
   };
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((e) => void active(e)),
   );
-  const refresh = () => {
-    providers.fire();
+  const changed = new Map<
+    string,
+    { uri: vscode.Uri; previewRevision: number }
+  >();
+  const refresh = (uri: vscode.Uri) => {
+    const docs = documents();
+    if (
+      !preview.dependsOn(uri) &&
+      !docs.some((doc) => providers.dependsOn(doc, uri))
+    )
+      return;
+    changed.set(uri.toString(), { uri, previewRevision: preview.revision });
     clearTimeout(timer);
     timer = setTimeout(() => {
-      for (const d of new Set([
-        ...vscode.window.visibleTextEditors.map((e) => e.document),
-        ...(preview.document ? [preview.document] : []),
-      ]))
-        if (locate(d.uri) && !d.isClosed) void providers.diagnose(d);
-      void preview.refresh();
+      const changes = [...changed.values()];
+      changed.clear();
+      const current = documents();
+      providers.retain(current);
+      for (const doc of current)
+        if (changes.some(({ uri }) => providers.dependsOn(doc, uri)))
+          void providers.diagnose(doc);
+      // A preview opened/refreshed after the event already includes that change.
+      if (
+        changes.some(
+          ({ uri, previewRevision }) =>
+            previewRevision === preview.revision && preview.dependsOn(uri),
+        )
+      )
+        void preview.refresh();
     }, 300);
   };
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((e) => {
-      if (locate(e.document.uri)) refresh();
+      if (!e.contentChanges.length) return;
+      if (documents().includes(e.document)) providers.fire();
+      refresh(e.document.uri);
     }),
-    vscode.workspace.onDidCloseTextDocument((d) =>
-      providers.diagnostics.delete(d.uri),
-    ),
+    vscode.workspace.onDidCloseTextDocument((d) => {
+      providers.close(d);
+      refresh(d.uri);
+    }),
+    vscode.window.onDidChangeVisibleTextEditors(() => {
+      const current = documents();
+      providers.retain(current);
+      for (const doc of current) void providers.diagnose(doc);
+    }),
     { dispose: () => clearTimeout(timer) },
   );
   // Watch only content and style trees, not the entire source-code workspace.

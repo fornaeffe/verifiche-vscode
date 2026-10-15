@@ -4,6 +4,7 @@ import path from "node:path";
 import fs from "node:fs/promises";
 import { structure } from "../../src/document";
 import { checkSettings } from "./settings";
+import { checkDependencies } from "./dependencies";
 
 export async function run() {
   const root = process.env.VERIFICHE_TEST_ROOT!;
@@ -373,6 +374,7 @@ blocchi:
   await vscode.commands.executeCommand("verifiche.addTrace", brokenUri);
   assert.equal(brokenDoc.getText(), brokenSource);
   assert.equal(brokenDoc.isDirty, false);
+  await checkDependencies(api);
   await checkSettings(api.preview);
   api.preview.dispose();
   console.log(

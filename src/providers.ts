@@ -14,6 +14,7 @@ import { enumerate, exercisePath, relativeId } from "./repository";
 import { exerciseInsertion } from "./commands";
 import { exercise, validate } from "./core";
 import { exerciseTemplates } from "./templates";
+import { Dependencies } from "./dependencies";
 
 const selector: vscode.DocumentSelector = [
   { scheme: "file", language: "yaml" },
@@ -26,13 +27,37 @@ export class Providers implements vscode.CodeLensProvider {
   onDidChangeCodeLenses = this.changed.event;
   diagnostics = vscode.languages.createDiagnosticCollection("verifiche");
   private pending = new Map<string, number>();
+  private dependencies = new Map<string, Dependencies>();
+  private generation = 0;
   constructor(private context: vscode.ExtensionContext) {}
   fire() {
     this.changed.fire();
   }
   dispose() {
+    this.pending.clear();
+    this.dependencies.clear();
     this.changed.dispose();
     this.diagnostics.dispose();
+  }
+  dependsOn(doc: vscode.TextDocument, uri: vscode.Uri) {
+    return (
+      this.dependencies.get(doc.uri.toString())?.affects(uri.fsPath) ??
+      doc.uri.toString() === uri.toString()
+    );
+  }
+  retain(documents: vscode.TextDocument[]) {
+    const keys = new Set(documents.map((doc) => doc.uri.toString()));
+    for (const key of this.dependencies.keys())
+      if (!keys.has(key)) {
+        this.dependencies.delete(key);
+        this.pending.delete(key);
+      }
+  }
+  close(doc: vscode.TextDocument) {
+    const key = doc.uri.toString();
+    this.dependencies.delete(key);
+    this.pending.delete(key);
+    this.diagnostics.delete(doc.uri);
   }
   provideCodeLenses(doc: vscode.TextDocument) {
     const loc = locate(doc.uri);
@@ -102,8 +127,10 @@ export class Providers implements vscode.CodeLensProvider {
     const loc = locate(doc.uri);
     if (!loc) return;
     const key = doc.uri.toString(),
-      generation = (this.pending.get(key) ?? 0) + 1;
+      generation = ++this.generation,
+      dependencies = new Dependencies(doc.uri.fsPath);
     this.pending.set(key, generation);
+    this.dependencies.set(key, dependencies);
     const diagnostics: vscode.Diagnostic[] = [];
     const add = (
       message: string,
@@ -115,6 +142,12 @@ export class Providers implements vscode.CodeLensProvider {
         if (loc.kind === "esercizi") exercise(doc.getText(), loc.id);
         else {
           const s = structure(doc.getText());
+          for (const ref of s.references)
+            try {
+              dependencies.add(exercisePath(loc.base, ref.id));
+            } catch {
+              /* Invalid paths are diagnosed below. */
+            }
           for (const ref of s.references)
             try {
               const e = await repository(loc.base).getExercise(ref.id);
@@ -141,8 +174,9 @@ export class Providers implements vscode.CodeLensProvider {
           if (!diagnostics.length) {
             const snapshot = await repository(loc.base).snapshot(
                 doc.uri.fsPath,
+                dependencies.add,
               ),
-              v = validate(snapshot.exam, snapshot.library);
+              v = validate(snapshot.exam, snapshot.library, dependencies.add);
             v.errors.forEach((e) => add(e));
             v.warnings.forEach((w) =>
               add(w, vscode.DiagnosticSeverity.Warning),

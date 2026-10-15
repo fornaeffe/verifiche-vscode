@@ -2,10 +2,6 @@
 
 ## Miglioramenti raccolti durante l’uso
 
-- [x] Esporre in settings i nomi di default e il percorso di output: cinque opzioni
-  documentate nel [README](README.md#nomi-predefiniti-e-destinazione-pdf).
-  Verificati 21 test di dominio, build ed Extension Host su VS Code 1.100.0 con
-  due cartelle workspace, modifiche senza riavvio ed export PDF reali.
 - [ ] Documentare la produzione del file installabile dell'estensione
 
 ## Previsioni del piano iniziale ancora parziali
@@ -15,10 +11,6 @@ Revisione del 15 ottobre 2026: confronto tra
 Le checkbox delle fasi non esaurivano tutti i dettagli dei contratti. Queste attività
 registrano le differenze; non sono state implementate in questa revisione.
 
-- [ ] **Aggiornamenti sulle sole dipendenze attive** (piano §3, F2/F5): conservare
-  l’insieme dei riferimenti dell’anteprima e aggiornare solo quando cambiano quei
-  documenti o risorse. In `src/extension.ts` ogni modifica nell’albero dei contenuti
-  rilancia diagnostica dei documenti visibili e refresh dell’anteprima, anche se estranea.
 - [ ] **Scansioni cancellabili e risultati obsoleti** (piano §3): completare progresso
   e cancellazione per le scansioni lunghe, in particolare rinomina variante e
   migrazione, e scartare i risultati delle richieste superate. Il controllo globale
@@ -68,6 +60,18 @@ Usare fixture sintetiche e profili isolati per le prove tecniche.
 
 ## Completato
 
+- [x] **Aggiornamenti sulle sole dipendenze attive** (piano §3, F2/F5): anteprima,
+  selettore varianti e diagnostica dei documenti visibili seguono i propri riferimenti,
+  compresi file mancanti, allegati e stile personalizzato. Gli eventi estranei non
+  rilanciano anteprima o diagnosi; gli insiemi cambiano con i riferimenti correnti,
+  senza grafo globale. Superati 24 test di dominio, build ed Extension Host su
+  VS Code 1.100.0: buffer non salvati, due radici, modifiche estranee, creazione e
+  cancellazione delle dipendenze, immagini/stili, selettore e pannello chiuso.
+  Nessun nuovo VSIX creato o installato.
 - [x] **Popolamento automatico delle nuove tracce**: prima variante non vuota libera nell’ordine del file, contando tutte le tracce e gli usi effettivi di `default`. Gli usi ripetuti dello stesso esercizio riservano varianti distinte nell’ordine dei blocchi, anche annidati; esaurite le varianti, assegnazione esplicita `''`. Verificati test di dominio, build ed Extension Host con buffer non salvati, esaurimento, annulla/ripristina e assenza di modifiche parziali su esercizi mancanti o malformati. Nessun nuovo VSIX creato o installato.
 - [x] Gli esercizi aggiunti tramite comando o drop ricevono `punti: 1`, salvo nei gruppi con punteggio (anche `0`, inclusi gli antenati). Opzione `verifiche.defaultExercisePoints` nei settings, attiva per default. Verificati test di dominio, build ed Extension Host con cambio impostazione e annulla/ripristina.
 - [x] Inserimento formula chimica con `Ctrl+K`, poi `Ctrl+Alt+H` (`Cmd+K`, poi `Cmd+Alt+H` su macOS): aggiunge `$\ce{}$` con il cursore tra le parentesi graffe. Verificati assenza di conflitti predefiniti e pressione effettiva della sequenza su Windows.
+- [x] Esporre in settings i nomi di default e il percorso di output: cinque opzioni
+  documentate nel [README](README.md#nomi-predefiniti-e-destinazione-pdf).
+  Verificati 21 test di dominio, build ed Extension Host su VS Code 1.100.0 con
+  due cartelle workspace, modifiche senza riavvio ed export PDF reali.
