@@ -53,6 +53,14 @@ dati-privati/                   # esempio di cartella dati, non inclusa nel soft
 
 Il software installato deve funzionare aprendo soltanto il repository dati: la cartella del sorgente dell'estensione non è una dipendenza runtime. Rilevare la radice dei contenuti dal workspace/configurazione, mai da `process.cwd()` o da un percorso personale cablato. Se ci sono più radici dati, risolvere il documento rispetto alla propria radice e chiedere una scelta solo dove il contesto è ambiguo.
 
+Dal setup 0.1.4, **Verifiche: Crea cartella dati…** prepara una destinazione nuova
+o vuota con struttura, `.gitkeep`, README, `.gitignore` e copia personalizzabile del
+CSS incluso, ripulito dalle classi legacy. Git locale è facoltativo e non comporta
+commit o pubblicazione. Il comando conserva il `contentDirectory` non standard
+nella nuova cartella; annullamenti precedono le scritture, collisioni non sovrascrivono
+file ed errori parziali elencano gli elementi creati. Uso corrente nel README;
+collaudo dei dialoghi nativi distinto nel TODO.
+
 Recuperare selettivamente il codice utile di `app/core.ts`, `app/pdf.ts`, template e test. Rifattorizzarlo in questo repository: niente import runtime verso il codice della precedente applicazione nella cartella dati, né pacchetti locali che richiedano l'accesso al repo privato. Nuova storia Git autonoma: non copiare `.git`, l'intero progetto o l'archivio nel repo pubblico. Esempi, screenshot, test e report pubblici devono usare contenuti sintetici. I risultati dell'audit sui dati reali restano nel repo privato o in output esclusi dal versionamento.
 
 Nella fase di distribuzione aggiungere testo GPL versione 3, metadati di licenza coerenti (default operativo GPL-3.0-only), attribuzioni e avvisi delle dipendenze distribuite; inventariare provenienza e licenze del codice e degli asset riutilizzati. Non applicare la licenza del software ai dati privati. Il repository è stato pubblicato, come confermato dall’utilizzatore il 15 ottobre 2026; questa riorganizzazione documentale non esegue ulteriori pubblicazioni.
@@ -296,6 +304,19 @@ Per riprendere il lavoro:
   creazione/cancellazione dello stile, sostituzione dei riferimenti e pannello chiuso.
   Restano aperte le altre attività del TODO. Nessun nuovo VSIX, installazione nel
   profilo ordinario, commit o push.
+
+- Consegna setup dati, 15 ottobre 2026 (0.1.4): implementato il comando descritto
+  nella sezione 2, con Git facoltativo e CSS incluso come unica sorgente del modello.
+  Rimossi selettori e classi dei precedenti strumenti; conservati gli accorgimenti
+  di spaziatura delle opzioni SM. Schede esercizio/selettore con classe del tipo;
+  l'export riceve il CSS della radice workspace anche con contenuti annidati.
+  Superati 29 test di dominio, build ed Extension Host VS Code 1.100.0; Chromium
+  verifica i cinque tipi, immagini/formule, risposte lunghe e stampa. Esportati PDF
+  sintetici: due pagine A4, stesso testo dell'anteprima stampata, stile della radice
+  corretto e ispezione visiva riuscita. Creato il VSIX 0.1.4 e ripetuta l'intera suite
+  sul pacchetto estratto, inclusi setup e risorse dell'installazione. Restano il collaudo
+  dei dialoghi nativi e l'installazione nel profilo ordinario, indicati nel TODO.
+  Nessuna modifica ai dati privati, commit o push.
 
 ## 10. Riferimenti tecnici verificati nella valutazione
 

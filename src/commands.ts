@@ -35,6 +35,7 @@ import { Preview } from "./preview";
 import { exportPDF } from "./pdf";
 import { validate, exercise, content, type Exercise } from "./core";
 import { spawn } from "node:child_process";
+import { runSetup } from "./setup-command";
 
 export async function exerciseInsertion(
   doc: vscode.TextDocument,
@@ -116,6 +117,9 @@ export function registerCommands(
         },
       ),
     );
+  register("createDataFolder", () =>
+    runSetup(context.asAbsolutePath("media/predefinito.css")),
+  );
   register("insertChemicalFormula", async () => {
     const editor = vscode.window.activeTextEditor;
     if (!editor || !locate(editor.document.uri)) return;
@@ -409,6 +413,7 @@ export function registerCommands(
           all ? s.exam.tracce.map((t: any) => String(t.id)) : [trace],
           context.asAbsolutePath("dist"),
           outputRoot,
+          path.join(loc.root, "stili/predefinito.css"),
         ),
     );
     void vscode.window

@@ -42,6 +42,10 @@ e il confronto qualitativo di fluidità sono stati confermati dall’utilizzator
 I casi sotto non hanno ancora un esito specifico registrato; non indicano difetti accertati.
 Usare fixture sintetiche e profili isolati per le prove tecniche.
 
+- [ ] **Dialoghi nativi di creazione cartella dati**: registrare la selezione reale
+  della cartella genitore/vuota e l'apertura nella nuova finestra, anche su macOS/Linux.
+  Creazione, annullamenti dei dialoghi ed errori sono coperti nel vero Extension Host
+  con dialoghi iniettati; apertura/annullamento del primo menu provati con CDP.
 - [ ] **Finestra nativa di creazione esercizio** (F1/F4): registrare la prova di
   selezione cartella/nome (anche con nome proposto configurato), annullamento senza file o riferimento residuo e recupero
   da errore parziale. La funzionalità è implementata; l’ultimo checkpoint la lasciava
@@ -54,12 +58,22 @@ Usare fixture sintetiche e profili isolati per le prove tecniche.
   dell’estensione con cache separata inizialmente vuota, l’export successivo e il
   funzionamento offline dopo il setup. I PDF precedenti usavano Chromium già presente.
 - [ ] **Scorciatoia chimica e pacchetto aggiornato**: registrare la prova sulla
-  tastiera fisica dell’utilizzatore e su macOS/Linux; creare/installare il VSIX della
-  versione aggiornata e verificarlo nel profilo ordinario. I test Windows con CDP
-  sono riusciti; il checkpoint della scorciatoia non documenta un nuovo VSIX installato.
+  tastiera fisica dell’utilizzatore e su macOS/Linux; installare il VSIX aggiornato
+  e verificarlo nel profilo ordinario. Creato il pacchetto 0.1.4 durante la consegna
+  del setup dati; i test Windows con CDP sono riusciti, senza installazione nel profilo ordinario.
 
 ## Completato
 
+- [x] **Creazione cartella dati e CSS pulito**: comando nuovo/vuoto, Git locale
+  facoltativo senza commit/remoti, `.gitkeep`, README e `.gitignore`, nessuna
+  sovrascrittura, annullamenti prima delle scritture e dettagli degli errori parziali.
+  Configurazione dei contenuti annidati validata e conservata nella nuova cartella.
+  Unico CSS incluso/copiato, senza regole e classi legacy; risposte VF/Etichettare
+  corrette anche nelle schede esercizio/selettore. PDF e anteprima usano il CSS della
+  radice workspace. Superati 29 test di dominio, build, Extension Host VS Code 1.100.0
+  e controlli Chromium sui cinque tipi; PDF A4 sintetici ispezionati e confrontati.
+  Creato il VSIX 0.1.4 e ripetuta l'intera suite sul pacchetto estratto, senza dipendenze
+  dal checkout del sorgente. Collaudo dei dialoghi nativi distinto sopra.
 - [x] **Aggiornamenti sulle sole dipendenze attive** (piano §3, F2/F5): anteprima,
   selettore varianti e diagnostica dei documenti visibili seguono i propri riferimenti,
   compresi file mancanti, allegati e stile personalizzato. Gli eventi estranei non

@@ -5,6 +5,8 @@ import fs from "node:fs/promises";
 import { structure } from "../../src/document";
 import { checkSettings } from "./settings";
 import { checkDependencies } from "./dependencies";
+import { checkSetup } from "./setup";
+import { checkStyleDocuments } from "./styles";
 
 export async function run() {
   const root = process.env.VERIFICHE_TEST_ROOT!;
@@ -12,7 +14,26 @@ export async function run() {
     "fornaeffe.verifiche-vscode",
   );
   assert.ok(extension);
+  assert.ok(
+    extension.packageJSON.contributes.commands.some(
+      (command: { command: string }) =>
+        command.command === "verifiche.createDataFolder",
+    ),
+  );
+  // Exercise the actual command with no active document; the UI runner dismisses it.
+  if (process.env.VERIFICHE_UI_TEST) {
+    await fs.writeFile(
+      path.join(process.env.VERIFICHE_UI_TEST, "ui-ready-setup"),
+      "ready",
+    );
+    await vscode.commands.executeCommand("verifiche.createDataFolder");
+  }
   const api = await extension.activate();
+  assert.ok(
+    (await vscode.commands.getCommands()).includes(
+      "verifiche.createDataFolder",
+    ),
+  );
   // Check the installed VS Code defaults, including bundled extensions.
   await vscode.commands.executeCommand(
     "workbench.action.openDefaultKeybindingsFile",
@@ -376,6 +397,8 @@ blocchi:
   assert.equal(brokenDoc.isDirty, false);
   await checkDependencies(api);
   await checkSettings(api.preview);
+  await checkStyleDocuments(api.preview, extension.extensionPath);
+  await checkSetup(extension, api);
   api.preview.dispose();
   console.log(
     "PASS: activation, chemical formula command/keyboard/cursor/undo/redo and default binding conflicts, reduced CodeLens, contextual Code Actions, picker cancel/select without duplicate editors, trace auto-assignment/unsaved buffers/exhaustion/undo/redo/read errors, definition, template, focus preview, exercise drop/default points/settings/undo/redo, image paste, rename references",

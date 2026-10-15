@@ -3,6 +3,7 @@ import { Preview } from "./preview";
 import { Providers, Transfers } from "./providers";
 import { registerCommands } from "./commands";
 import { locate, clearRepositories } from "./host";
+import { runSetup, SetupUI } from "./setup-command";
 
 export function activate(context: vscode.ExtensionContext) {
   const preview = new Preview(context),
@@ -106,5 +107,15 @@ export function activate(context: vscode.ExtensionContext) {
   }
   void active(vscode.window.activeTextEditor);
   // Exposed only to Extension Host integration tests, not as user commands.
-  return { preview, providers, transfers: new Transfers() };
+  return {
+    preview,
+    providers,
+    transfers: new Transfers(),
+    setup: (dialogs: SetupUI, gitInit?: (root: string) => Promise<void>) =>
+      runSetup(
+        context.asAbsolutePath("media/predefinito.css"),
+        dialogs,
+        gitInit,
+      ),
+  };
 }

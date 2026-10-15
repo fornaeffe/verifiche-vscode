@@ -154,7 +154,7 @@ export class Preview {
         const cards = e.variantOrder.map((id) => ({
           id,
           html: this.page(
-            `<h2>${esc(id)}</h2>${content(e.varianti[id], e.tipo, !!e.origine)}`,
+            `<h2>${esc(id)}</h2><div class="${e.tipo.toLowerCase()}">${content(e.varianti[id], e.tipo, !!e.origine)}</div>`,
             loc,
             dependencies,
           ),
@@ -178,7 +178,7 @@ export class Preview {
           cards.push({
             id: v.id,
             html: this.page(
-              `<h2>${esc(v.id)}</h2>${content(v.body, e.tipo, !!e.origine)}`,
+              `<h2>${esc(v.id)}</h2><div class="${e.tipo.toLowerCase()}">${content(v.body, e.tipo, !!e.origine)}</div>`,
               loc,
               dependencies,
             ),

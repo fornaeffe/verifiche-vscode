@@ -10,6 +10,7 @@ export async function exportPDF(
   traces: string[],
   assetRoot: string,
   outputRoot = path.join(snapshot.base, "..", "output"),
+  styleFile = path.join(snapshot.base, "..", "stili/predefinito.css"),
 ) {
   const pages = traces.map((t) => ({
     trace: t,
@@ -22,8 +23,8 @@ export async function exportPDF(
   await load(
     "/stili/predefinito.css",
     await fs
-      .access(path.join(snapshot.base, "..", "stili/predefinito.css"))
-      .then(() => path.join(snapshot.base, "..", "stili/predefinito.css"))
+      .access(styleFile)
+      .then(() => styleFile)
       .catch(() => path.join(assetRoot, "../media/predefinito.css")),
   );
   await load(

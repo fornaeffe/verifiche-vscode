@@ -17,12 +17,23 @@ valori che usa, prima delle modifiche o dell’export. I template ricevono i nom
 come parametri. L’estensione risolve l’output rispetto alla radice workspace del
 documento e lo passa a `exportPDF`; la CLI conserva il default del motore.
 
+`setup.ts` crea una cartella dati nuova o vuota con directory, `.gitkeep`, CSS,
+README e `.gitignore`. Valida il percorso relativo dei contenuti prima di scrivere;
+usa creazioni esclusive e segnala gli elementi già creati in caso di errore parziale,
+senza eliminazioni automatiche. Per contenuti non standard salva il setting nella
+nuova cartella. `setup-command.ts` raccoglie tutte le scelte prima delle scritture,
+offre `git init` facoltativo (processo senza shell, nessun commit/remoto) e apre una
+nuova finestra. I dialoghi sono iniettabili per provare annullamenti ed errori.
+Il CSS copiato proviene dall'installazione, mai da checkout esterni.
+
 `preview.ts` tiene una sola webview: segue l'editor e passa temporaneamente al
 selettore varianti. I contenuti sono in iframe senza script. CSS, font e immagini
 necessari sono incorporati negli iframe, perché le risorse dei documenti srcdoc
 non sono gestite come quelle del documento principale dal service worker VS Code.
 Il pannello dei comandi usa messaggi validati rispetto al documento e alla sua
 versione. I contenuti non ricevono il nonce degli script del pannello.
+Anche le schede esercizio e del selettore includono la classe del tipo, necessaria
+per risposte VF/Etichettare e interlinea Completamento.
 
 `dependencies.ts` conserva i percorsi usati dall’anteprima corrente (anche nel
 selettore) e, separatamente, dalla diagnostica dei documenti visibili o in anteprima.
@@ -35,6 +46,9 @@ seguono la propria radice workspace; la chiusura del pannello libera i suoi rife
 `pdf.ts` stampa tramite Chromium un insieme già acquisito di sorgenti e risorse.
 Il server HTTP è temporaneo, su loopback e porta casuale; serve soltanto le risorse
 precaricate. Non occorre avviare un'applicazione web separata.
+Il comando passa esplicitamente il CSS della radice workspace, come l'anteprima;
+la CLI conserva la ricerca nel genitore dei contenuti. Il CSS incluso in `media`
+è anche il modello copiato durante il setup e il ripiego quando manca quello dei dati.
 
 `migration.ts` produce un piano e confronta tutte le tracce prima di applicare
 modifiche. Un errore o una revisione cambiata impedisce l'applicazione; l'applicazione
@@ -64,6 +78,12 @@ attraverso una porta CDP locale effimera, usata soltanto dai test. Screenshot e 
 sono esclusi da Git. F5 usa invece la configurazione in `.vscode/launch.json`.
 La suite controlla anche i refresh e le diagnosi effettivamente invocati: dipendenze
 modificate, file estranei, buffer non salvati, risorse mancanti e radici distinte.
+La suite prova anche setup nuovo/vuoto, annullamenti, collisioni, Git facoltativo e
+assente, setting annidato persistente e uso della cartella generata. Il comando reale
+viene aperto e annullato con CDP senza un documento attivo. `tools/check-styles.mjs`
+controlla gli iframe salvati dal vero host in Chromium, anche in modalità stampa:
+cinque tipi, risposte lunghe senza sovrapposizioni, immagini/formule e assenza delle
+classi legacy. PDF e screenshot sintetici sono in `test-results/`, ignorata da Git.
 
 Per provare un VSIX senza il checkout del sorgente, installarlo in un profilo VS Code
 separato e aprire una cartella dati. Il motore non deve importare file da repository

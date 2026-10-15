@@ -10,8 +10,20 @@ Questo repository contiene il software; non contiene verifiche o esercizi privat
 
 ## Installazione e cartella dati
 
-Installare il file `.vsix` con **Extensions: Install from VSIX…** e aprire la propria
-cartella dati. È richiesto VS Code 1.100 o successivo. La cartella ha questa struttura:
+Installare il file `.vsix` con **Extensions: Install from VSIX…**. È richiesto
+VS Code 1.100 o successivo. Per iniziare, eseguire **Verifiche: Crea cartella dati…**
+dalla Command Palette, anche senza un documento aperto:
+
+1. Scegliere **Nuova cartella** (cartella genitore e nome) oppure **Cartella vuota
+   esistente**. Una destinazione non vuota viene rifiutata senza sovrascrivere file.
+2. Scegliere **Solo cartella dati** oppure **Inizializza anche Git**. Git è facoltativo
+   e deve essere installato per la seconda opzione; non vengono creati commit o remoti.
+3. La cartella viene aperta in una nuova finestra VS Code. Annullare una delle scelte
+   precedenti non crea file. Se Git fallisce, la cartella rimane utilizzabile e viene
+   mostrato un avviso. Un errore durante la creazione elenca file e cartelle già creati;
+   controllarli prima di riprovare.
+
+Il comando crea questa struttura, senza contenuti dimostrativi:
 
 ```text
 contenuti/
@@ -20,9 +32,22 @@ contenuti/
   allegati/       # immagini locali
 stili/
   predefinito.css # facoltativo; sostituisce lo stile fornito
+.gitignore       # esclude /output/
+README.md        # istruzioni essenziali per i dati
 ```
 
-La posizione di `contenuti` è configurabile con `verifiche.contentDirectory`.
+Le tre cartelle dei contenuti includono un `.gitkeep` per conservarle in Git anche
+vuote. `output/` viene creata al primo export. Il CSS copiato è lo stesso incluso
+nell'estensione, ripulito dalle classi dei vecchi strumenti; può essere modificato
+o esteso con proprie classi. Le copie nei dati non vengono aggiornate automaticamente.
+
+È possibile anche aprire una cartella dati già predisposta. La posizione di `contenuti`
+è configurabile con `verifiche.contentDirectory`. Durante la creazione il comando
+legge l'impostazione della destinazione scelta: deve essere un percorso relativo
+interno, anche annidato, senza `.` o `..`, variabili o nomi di cartella invalidi.
+Le radici `stili`, `output`, `.git` e `.vscode` sono riservate. Se diversa dal default,
+l'impostazione viene conservata in `.vscode/settings.json` nella nuova cartella.
+Se si cambia la destinazione dei PDF, adeguare `.gitignore` quando necessario.
 Non occorre avere il sorgente dell'estensione accanto ai dati. L'estensione lavora
 nei workspace attendibili; dopo il setup funziona offline.
 
@@ -109,6 +134,8 @@ include anche quella pubblica. I file sono in `output/<verifica>/traccia-<tracci
 con le eventuali sottocartelle della verifica; la destinazione è configurabile.
 L'export include i contenuti correnti anche se non salvati. Errori di riferimenti,
 formule o immagini bloccano la stampa interessata, senza impedire di salvare bozze.
+Anteprima ed export dell'estensione cercano il CSS personalizzato nella stessa
+posizione, `stili/predefinito.css` nella radice workspace, anche con contenuti annidati.
 
 ## Nomi predefiniti e destinazione PDF
 

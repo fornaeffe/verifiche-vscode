@@ -6,6 +6,7 @@ import os from "node:os";
 import net from "node:net";
 import { chromium } from "playwright";
 import { connect } from "./cdp.mjs";
+import { checkStyles } from "./check-styles.mjs";
 const temp = await fs.mkdtemp(path.join(os.tmpdir(), "verifiche-host-"));
 delete process.env.ELECTRON_RUN_AS_NODE;
 try {
@@ -68,6 +69,7 @@ try {
       VERIFICHE_TEST_ROOT: path.join(temp, "workspace"),
       VERIFICHE_TEST_SECOND_ROOT: secondRoot,
       VERIFICHE_UI_TEST: temp,
+      VERIFICHE_TEST_RESULTS: path.resolve("test-results"),
     },
   });
   const ui = async () => {
@@ -76,15 +78,27 @@ try {
       const deadline = Date.now() + 90000;
       while (Date.now() < deadline) {
         try {
-          await fs.access(path.join(temp, "ui-ready-formula"));
+          await fs.access(path.join(temp, "ui-ready-setup"));
           break;
         } catch {
           await new Promise((r) => setTimeout(r, 200));
         }
       }
-      await fs.access(path.join(temp, "ui-ready-formula"));
+      await fs.access(path.join(temp, "ui-ready-setup"));
       browser = await chromium.connectOverCDP("http://127.0.0.1:" + port);
       const page = browser.contexts()[0].pages()[0];
+      await page.getByText("Nuova cartella", { exact: true }).waitFor();
+      await page.keyboard.press("Escape");
+      const formulaDeadline = Date.now() + 30000;
+      while (Date.now() < formulaDeadline) {
+        try {
+          await fs.access(path.join(temp, "ui-ready-formula"));
+          break;
+        } catch {
+          await new Promise((r) => setTimeout(r, 100));
+        }
+      }
+      await fs.access(path.join(temp, "ui-ready-formula"));
       const modifier = process.platform === "darwin" ? "Meta" : "Control";
       await page.keyboard.press(modifier + "+k");
       await page.keyboard.press(modifier + "+Alt+h");
@@ -205,6 +219,7 @@ try {
   const results = await Promise.allSettled([run, ui()]);
   for (const result of results)
     if (result.status === "rejected") throw result.reason;
+  await checkStyles();
 } finally {
   await fs.rm(temp, {
     recursive: true,
