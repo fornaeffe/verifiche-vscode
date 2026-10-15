@@ -55,6 +55,12 @@ assegnazioni. Le modifiche strutturali sono annullabili con il normale comando U
 
 ## Esercizi, immagini e riferimenti
 
+Per inserire una formula chimica premere `Ctrl+K`, poi `Ctrl+Alt+H`
+(`Cmd+K`, poi `Cmd+Alt+H` su macOS). Nei file esercizio e verifica viene inserito
+`$\ce{}$` con il cursore tra le parentesi graffe, pronto per scrivere la formula.
+Il comando **Verifiche: Inserisci formula chimica** è disponibile anche nella
+Command Palette; la sequenza si può personalizzare nelle scorciatoie di VS Code.
+
 Un file vuoto dentro `esercizi` propone i template A, SM, VF, Etichettare e Completamento.
 Le varianti hanno comandi per aggiunta, duplicazione e rinomina con aggiornamento usi.
 **Find All References** trova le verifiche che utilizzano un esercizio o una variante.

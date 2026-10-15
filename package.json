@@ -2,7 +2,7 @@
   "name": "verifiche-vscode",
   "displayName": "Verifiche",
   "description": "Verifiche ed esercizi Markdown/YAML nell'editor, con anteprima e PDF.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "fornaeffe",
   "license": "GPL-3.0-only",
   "repository": {
@@ -53,6 +53,11 @@
   },
   "contributes": {
     "commands": [
+      {
+        "command": "verifiche.insertChemicalFormula",
+        "title": "Verifiche: Inserisci formula chimica",
+        "enablement": "!editorReadonly && verifiche.document"
+      },
       {
         "command": "verifiche.template",
         "title": "Verifiche: Inserisci template"
@@ -137,6 +142,12 @@
       ]
     },
     "keybindings": [
+      {
+        "command": "verifiche.insertChemicalFormula",
+        "key": "ctrl+k ctrl+alt+h",
+        "mac": "cmd+k cmd+alt+h",
+        "when": "editorTextFocus && !editorReadonly && verifiche.document"
+      },
       {
         "command": "verifiche.addBlock",
         "key": "ctrl+alt+insert",

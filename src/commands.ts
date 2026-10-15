@@ -141,6 +141,13 @@ export function registerCommands(
         },
       ),
     );
+  register("insertChemicalFormula", async () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || !locate(editor.document.uri)) return;
+    const snippet = new vscode.SnippetString();
+    snippet.appendText("$\\ce{").appendTabstop(0).appendText("}$");
+    await editor.insertSnippet(snippet);
+  });
   register("preview", async (uri?: vscode.Uri) =>
     preview.show(await target(uri), true),
   );

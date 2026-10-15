@@ -10,12 +10,84 @@ export async function run() {
   );
   assert.ok(extension);
   const api = await extension.activate();
+  // Check the installed VS Code defaults, including bundled extensions.
+  await vscode.commands.executeCommand(
+    "workbench.action.openDefaultKeybindingsFile",
+  );
+  const defaults = vscode.window.activeTextEditor!.document.getText();
+  const key =
+    process.platform === "darwin" ? "cmd+k cmd+alt+h" : "ctrl+k ctrl+alt+h";
+  const bindings = JSON.parse(defaults.replace(/^\s*\/\/.*$/gm, ""));
+  const conflicts = bindings.filter(
+    (binding: { key: string; command: string }) =>
+      binding.command !== "verifiche.insertChemicalFormula" &&
+      (binding.key === key || binding.key.startsWith(key + " ")),
+  );
+  assert.deepEqual(
+    conflicts,
+    [],
+    "Chemical formula shortcut conflicts with a default binding",
+  );
   const examUri = vscode.Uri.file(
     path.join(root, "contenuti/verifiche/esempio.yaml"),
   );
   const doc = await vscode.workspace.openTextDocument(examUri);
   await vscode.window.showTextDocument(doc);
   const original = doc.getText();
+  const checkChemicalFormula = async (document: vscode.TextDocument) => {
+    const editor = await vscode.window.showTextDocument(document);
+    const before = document.getText();
+    const position = document.positionAt(before.length);
+    editor.selection = new vscode.Selection(position, position);
+    await vscode.commands.executeCommand("verifiche.insertChemicalFormula");
+    assert.equal(document.getText(), before + "$\\ce{}$");
+    assert.ok(editor.selection.isEmpty);
+    assert.equal(document.offsetAt(editor.selection.active), before.length + 5);
+    await vscode.commands.executeCommand("type", { text: "H2O" });
+    assert.equal(document.getText(), before + "$\\ce{H2O}$");
+    await vscode.commands.executeCommand("undo");
+    assert.equal(document.getText(), before + "$\\ce{}$");
+    await vscode.commands.executeCommand("undo");
+    assert.equal(document.getText(), before);
+    await vscode.commands.executeCommand("redo");
+    assert.equal(document.getText(), before + "$\\ce{}$");
+    await vscode.commands.executeCommand("undo");
+    assert.equal(document.getText(), before);
+  };
+  await checkChemicalFormula(doc);
+  const exerciseDocument = await vscode.workspace.openTextDocument(
+    vscode.Uri.file(path.join(root, "contenuti/esercizi/scienze/esempio.md")),
+  );
+  await checkChemicalFormula(exerciseDocument);
+  if (process.env.VERIFICHE_UI_TEST) {
+    const editor = await vscode.window.showTextDocument(exerciseDocument);
+    const before = exerciseDocument.getText();
+    const position = exerciseDocument.positionAt(before.length);
+    editor.selection = new vscode.Selection(position, position);
+    const temp = process.env.VERIFICHE_UI_TEST;
+    await fs.writeFile(path.join(temp, "ui-ready-formula"), "ready");
+    const deadline = Date.now() + 30000;
+    while (
+      !exerciseDocument.getText().endsWith("$\\ce{}$") &&
+      Date.now() < deadline
+    )
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    assert.equal(exerciseDocument.getText(), before + "$\\ce{}$");
+    assert.equal(
+      exerciseDocument.offsetAt(editor.selection.active),
+      before.length + 5,
+    );
+    await vscode.commands.executeCommand("undo");
+    assert.equal(exerciseDocument.getText(), before);
+  }
+  const unrelated = await vscode.workspace.openTextDocument({
+    language: "markdown",
+    content: "Unrelated document",
+  });
+  await vscode.window.showTextDocument(unrelated);
+  await vscode.commands.executeCommand("verifiche.insertChemicalFormula");
+  assert.equal(unrelated.getText(), "Unrelated document");
+  await vscode.window.showTextDocument(doc);
   const lenses = await vscode.commands.executeCommand<vscode.CodeLens[]>(
     "vscode.executeCodeLensProvider",
     doc.uri,
@@ -189,6 +261,6 @@ export async function run() {
   await vscode.workspace.fs.stat(old);
   api.preview.dispose();
   console.log(
-    "PASS: activation, reduced CodeLens, contextual Code Actions, picker cancel/select without duplicate editors, trace edit/undo, definition, template, focus preview, exercise drop/undo, image paste, rename references",
+    "PASS: activation, chemical formula command/keyboard/cursor/undo/redo and default binding conflicts, reduced CodeLens, contextual Code Actions, picker cancel/select without duplicate editors, trace edit/undo, definition, template, focus preview, exercise drop/undo, image paste, rename references",
   );
 }

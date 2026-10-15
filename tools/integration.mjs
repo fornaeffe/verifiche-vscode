@@ -52,15 +52,28 @@ try {
       const deadline = Date.now() + 90000;
       while (Date.now() < deadline) {
         try {
-          await fs.access(path.join(temp, "ui-ready-cancel"));
+          await fs.access(path.join(temp, "ui-ready-formula"));
           break;
         } catch {
           await new Promise((r) => setTimeout(r, 200));
         }
       }
-      await fs.access(path.join(temp, "ui-ready-cancel"));
+      await fs.access(path.join(temp, "ui-ready-formula"));
       browser = await chromium.connectOverCDP("http://127.0.0.1:" + port);
       const page = browser.contexts()[0].pages()[0];
+      const modifier = process.platform === "darwin" ? "Meta" : "Control";
+      await page.keyboard.press(modifier + "+k");
+      await page.keyboard.press(modifier + "+Alt+h");
+      const cancelDeadline = Date.now() + 30000;
+      while (Date.now() < cancelDeadline) {
+        try {
+          await fs.access(path.join(temp, "ui-ready-cancel"));
+          break;
+        } catch {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+      }
+      await fs.access(path.join(temp, "ui-ready-cancel"));
       const targets = await fetch(
         "http://127.0.0.1:" + port + "/json/list",
       ).then((r) => r.json());
