@@ -9,6 +9,10 @@
     "type": "git",
     "url": "https://github.com/fornaeffe/verifiche-vscode.git"
   },
+  "homepage": "https://github.com/fornaeffe/verifiche-vscode#readme",
+  "bugs": {
+    "url": "https://github.com/fornaeffe/verifiche-vscode/issues"
+  },
   "engines": {
     "vscode": "^1.100.0"
   },
@@ -28,6 +32,7 @@
   "scripts": {
     "build": "tsc --noEmit && node tools/build.mjs",
     "test": "tsx --test test/*.test.ts",
+    "docs:check": "node tools/check-docs.mjs",
     "test:integration": "node tools/integration.mjs",
     "cli": "tsx src/cli.ts",
     "package": "npm run build && vsce package --no-dependencies",
@@ -53,6 +58,10 @@
   },
   "contributes": {
     "commands": [
+      {
+        "command": "verifiche.openGuide",
+        "title": "Verifiche: Apri guida"
+      },
       {
         "command": "verifiche.createDataFolder",
         "title": "Verifiche: Crea cartella dati…"

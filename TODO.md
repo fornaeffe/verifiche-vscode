@@ -1,9 +1,5 @@
 # Attività aperte
 
-## Miglioramenti raccolti durante l’uso
-
-- [ ] Documentare la produzione del file installabile dell'estensione
-
 ## Previsioni del piano iniziale ancora parziali
 
 Revisione del 15 ottobre 2026: confronto tra
@@ -64,6 +60,20 @@ Usare fixture sintetiche e profili isolati per le prove tecniche.
 
 ## Completato
 
+- [x] **Manuale d’uso e guida offline**: README sintetico, tutorial, guide per
+  compito, riferimento Markdown/YAML e comandi/settings, problemi, uso degli
+  agenti sui contenuti ed esempi dei cinque tipi. Comando **Verifiche: Apri guida**
+  senza documento dati attivo e richiamo nel README generato dal setup.
+  Supporto su GitHub Discussions/Issues. Superati controllo documentale,
+  31 test, build ed Extension Host VS Code 1.100.0 su Windows, anche sul VSIX
+  estratto; controllati collegamenti locali/case e separazione dai documenti
+  di sviluppo. Esempi validati ed esportati in due PDF da 10 punti.
+  Creato un VSIX di prova, senza nuova release, installazione nel profilo ordinario,
+  commit o push. Nessun nuovo collaudo macOS/Linux.
+- [x] **Documentare la produzione del file installabile**:
+  [procedura VSIX](docs/distribuzione.md) con prerequisiti, verifiche, contenuti
+  inclusi/esclusi e prova isolata. [CONTRIBUTING](CONTRIBUTING.md), architettura,
+  CLI, distribuzione, istruzioni di sviluppo e archivio restano solo nel repository.
 - [x] **Creazione cartella dati e CSS pulito**: comando nuovo/vuoto, Git locale
   facoltativo senza commit/remoti, `.gitkeep`, README e `.gitignore`, nessuna
   sovrascrittura, annullamenti prima delle scritture e dettagli degli errori parziali.
@@ -86,6 +96,6 @@ Usare fixture sintetiche e profili isolati per le prove tecniche.
 - [x] Gli esercizi aggiunti tramite comando o drop ricevono `punti: 1`, salvo nei gruppi con punteggio (anche `0`, inclusi gli antenati). Opzione `verifiche.defaultExercisePoints` nei settings, attiva per default. Verificati test di dominio, build ed Extension Host con cambio impostazione e annulla/ripristina.
 - [x] Inserimento formula chimica con `Ctrl+K`, poi `Ctrl+Alt+H` (`Cmd+K`, poi `Cmd+Alt+H` su macOS): aggiunge `$\ce{}$` con il cursore tra le parentesi graffe. Verificati assenza di conflitti predefiniti e pressione effettiva della sequenza su Windows.
 - [x] Esporre in settings i nomi di default e il percorso di output: cinque opzioni
-  documentate nel [README](README.md#nomi-predefiniti-e-destinazione-pdf).
+  documentate nel [riferimento delle impostazioni](docs/riferimento/comandi-impostazioni.md#impostazioni).
   Verificati 21 test di dominio, build ed Extension Host su VS Code 1.100.0 con
   due cartelle workspace, modifiche senza riavvio ed export PDF reali.

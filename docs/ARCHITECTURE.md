@@ -1,5 +1,9 @@
 # Architettura e sviluppo
 
+Documento del repository, escluso dal VSIX. Per scegliere la sola documentazione
+pertinente al compito vedi [CONTRIBUTING.md](../CONTRIBUTING.md); per usare
+l’estensione vedi il [manuale](README.md).
+
 `src/core.ts` analizza e rende Markdown/YAML. `src/document.ts` individua nodi e
 intervalli del sorgente e produce modifiche circoscritte. `src/repository.ts` risolve
 i percorsi e carica soltanto le dipendenze richieste; la cache degli esercizi è
@@ -9,6 +13,13 @@ limitata a 64 documenti ed è eliminabile.
 acquisiscono i testi dei buffer aperti all'inizio dello snapshot. `commands.ts` e
 `providers.ts` applicano WorkspaceEdit, CodeLens, azioni, completamento, definizioni,
 ricerca utilizzi, rinomina e trasferimenti di immagini/esercizi.
+
+`verifiche.openGuide` apre `docs/README.md` dall’URI dell’installazione con
+`markdown.showPreview`, senza dipendere da un documento dati attivo. Il VSIX
+include soltanto la documentazione d’uso selezionata in `.vscodeignore`;
+architettura, CLI, distribuzione, istruzioni agenti di sviluppo e archivio
+storico rimangono nel repository. La documentazione degli agenti installata
+riguarda esclusivamente il lavoro sui contenuti.
 
 `settings.ts` contiene default e validazione dei nomi di creazione e della
 destinazione PDF, senza dipendere da VS Code. `host.settings(uri)` legge la
@@ -62,6 +73,7 @@ nell’[archivio di implementazione](archivio-implementazione/README.md).
 
 ```sh
 npm ci
+npm run docs:check
 npm test
 npm run build
 npm run test:integration
@@ -88,6 +100,13 @@ classi legacy. PDF e screenshot sintetici sono in `test-results/`, ignorata da G
 Per provare un VSIX senza il checkout del sorgente, installarlo in un profilo VS Code
 separato e aprire una cartella dati. Il motore non deve importare file da repository
 fratelli. Il manifest pubblicato non deve includere contenuti reali o percorsi personali.
+
+`npm run docs:check` verifica collegamenti locali (anche maiuscole/minuscole),
+ancore e presenza di tutti i comandi/settings nel riferimento. Con la radice
+di un VSIX estratto come argomento controlla i documenti realmente distribuiti
+e l’esclusione di quelli di sviluppo. I test di dominio validano tutorial ed
+esempi pubblici; la suite Extension Host apre il comando guida senza un file dati
+attivo. Per produrre e collaudare il pacchetto vedi [Distribuzione](distribuzione.md).
 
 ## Limiti verificabili
 

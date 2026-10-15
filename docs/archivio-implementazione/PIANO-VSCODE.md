@@ -240,10 +240,11 @@ Completata quando il software funziona installato senza il suo checkout sorgente
 
 ## 7. Scelte consolidate e limiti di ambito
 
-Le scelte del prototipo sono ora documentate nel README e nell’architettura:
+Le scelte del prototipo sono ora documentate nel [manuale d’uso](../README.md)
+e nell’architettura:
 
 - Drop tramite API native e scelta dentro/prima/dopo per i gruppi.
-- CodeLens dedicati agli inserimenti nelle verifiche; operazioni sulle tracce e scelta variante nelle Code Actions contestuali. Scorciatoie indicate nel README.
+- CodeLens dedicati agli inserimenti nelle verifiche; operazioni sulle tracce e scelta variante nelle Code Actions contestuali. Scorciatoie nel [riferimento comandi](../riferimento/comandi-impostazioni.md).
 - Template verifica con traccia pubblica e una ordinaria, titolo dal file.
 - Su documento estraneo conservare l’ultima anteprima, identificata dal nome del file; resta da chiudere il selettore temporaneo in questo caso (TODO).
 - Eliminazione manuale dell’ultima variante: bozza salvabile con diagnostica, senza assegnazioni o cancellazioni automatiche degli utilizzi.
@@ -289,7 +290,7 @@ Per riprendere il lavoro:
   Nessun nuovo test software, pacchetto, installazione, commit o push in questa consegna.
   Per il prossimo intervento scegliere un’attività nel TODO; non ripartire da F0.
 - Consegna settings, 15 ottobre 2026: implementate le cinque opzioni descritte nel
-  [README](../../README.md#nomi-predefiniti-e-destinazione-pdf), con validazione per
+  [riferimento delle impostazioni](../riferimento/comandi-impostazioni.md#impostazioni), con validazione per
   operazione e ambito per risorsa; anche `contentDirectory` supporta valori distinti
   per cartella. Superati 21 test di dominio, build ed Extension Host su VS Code
   1.100.0: template, impostazioni aggiornate senza riavvio, due cartelle workspace,
@@ -317,6 +318,18 @@ Per riprendere il lavoro:
   sul pacchetto estratto, inclusi setup e risorse dell'installazione. Restano il collaudo
   dei dialoghi nativi e l'installazione nel profilo ordinario, indicati nel TODO.
   Nessuna modifica ai dati privati, commit o push.
+
+- Consegna documentazione, 15 ottobre 2026: [manuale d’uso](../README.md) con
+  tutorial, guide, riferimento, problemi, agenti sui contenuti ed esempi sintetici;
+  comando **Apri guida** dall’installazione e richiamo nel README del setup.
+  Supporto GitHub Discussions/Issues. La documentazione per sviluppo, CLI e
+  distribuzione rimane solo nel repository, indicizzata da
+  [CONTRIBUTING](../../CONTRIBUTING.md). Superati controllo riferimenti/case,
+  31 test, build ed Extension Host Windows VS Code 1.100.0, anche sul VSIX estratto;
+  verificata l’esclusione dei documenti di sviluppo. Esportati i due PDF degli
+  esempi, ciascuno da 10 punti. Pacchetto di prova prodotto mantenendo 0.1.4 e
+  changelog «Non rilasciato»: nessuna nuova pubblicazione, installazione nel profilo
+  ordinario, modifica ai dati privati, commit o push. Collaudi precedenti aperti nel TODO.
 
 ## 10. Riferimenti tecnici verificati nella valutazione
 

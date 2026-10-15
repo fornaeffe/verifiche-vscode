@@ -14,6 +14,32 @@ export async function run() {
     "fornaeffe.verifiche-vscode",
   );
   assert.ok(extension);
+  // The guide is available from the installed package without an active data file.
+  assert.ok(
+    extension.packageJSON.contributes.commands.some(
+      (command: { command: string }) =>
+        command.command === "verifiche.openGuide",
+    ),
+  );
+  const guide = vscode.Uri.joinPath(
+    extension.extensionUri,
+    "docs",
+    "README.md",
+  );
+  assert.match(
+    Buffer.from(await vscode.workspace.fs.readFile(guide)).toString("utf8"),
+    /Manuale di Verifiche/,
+  );
+  await vscode.commands.executeCommand("verifiche.openGuide");
+  const guideTab = vscode.window.tabGroups.all
+    .flatMap((group) => group.tabs)
+    .find(
+      (tab) =>
+        tab.input instanceof vscode.TabInputWebview &&
+        tab.label.includes("README.md"),
+    );
+  assert.ok(guideTab, "The bundled Markdown guide must open as a preview");
+  await vscode.window.tabGroups.close(guideTab);
   assert.ok(
     extension.packageJSON.contributes.commands.some(
       (command: { command: string }) =>

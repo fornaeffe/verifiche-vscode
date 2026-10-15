@@ -120,6 +120,12 @@ export function registerCommands(
   register("createDataFolder", () =>
     runSetup(context.asAbsolutePath("media/predefinito.css")),
   );
+  register("openGuide", () =>
+    vscode.commands.executeCommand(
+      "markdown.showPreview",
+      vscode.Uri.joinPath(context.extensionUri, "docs", "README.md"),
+    ),
+  );
   register("insertChemicalFormula", async () => {
     const editor = vscode.window.activeTextEditor;
     if (!editor || !locate(editor.document.uri)) return;

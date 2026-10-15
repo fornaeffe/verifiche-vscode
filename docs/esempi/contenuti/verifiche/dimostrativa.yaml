@@ -1,0 +1,41 @@
+titolo: Passaggi di stato — esempio sintetico
+tracce:
+  - id: prova
+    pubblica: true
+  - id: "1"
+    etichetta: Gruppo A
+blocchi:
+  - contenuto: "Materiale dimostrativo: non contiene dati reali."
+  - istruzioni:
+      testo: Leggi con attenzione prima di rispondere.
+      punti: 0
+      versioni:
+        prova: Questa traccia mostra le domande di esempio.
+        "1": Rispondi a tutte le domande della tua traccia.
+  - gruppo:
+      istruzioni: Prima parte — descrizione e scelta.
+      punti: 4
+      esercizi:
+        - esercizio:
+            id: scienze/acqua
+            versioni: {prova: base, "1": seconda}
+            attributi: {class: compatto}
+        - gruppo:
+            istruzioni: Scegli una sola alternativa.
+            esercizi:
+              - esercizio:
+                  id: scienze/scelta
+                  versioni: {default: base, "1": seconda}
+  - salto_pagina: true
+  - esercizio:
+      id: scienze/vero-falso
+      punti: 2
+      versioni: {prova: base, "1": seconda}
+  - esercizio:
+      id: scienze/etichette
+      punti: 2
+      versioni: {prova: base, "1": seconda}
+  - esercizio:
+      id: scienze/completamento
+      punti: 2
+      versioni: {prova: base, "1": seconda}

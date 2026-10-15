@@ -75,8 +75,9 @@ Creare un file vuoto nelle cartelle esercizi o verifiche e usare
 alla cartella esercizi, senza \`.md\`: non aggiungere ID al front matter.
 
 Per il primo PDF usare **Verifiche: Installa Chromium per i PDF** se richiesto;
-dopo il setup si può lavorare offline. Per gli altri comandi consultare il README
-dell'estensione nella scheda Extensions di VS Code.
+dopo il setup si può lavorare offline. Per il manuale completo eseguire
+**Verifiche: Apri guida** dalla Command Palette: la guida è inclusa nell'estensione
+ed è consultabile anche offline.
 
 Conservare contenuti e stili nei backup. Git è facoltativo; la creazione della
 cartella non esegue commit né pubblicazioni remote.

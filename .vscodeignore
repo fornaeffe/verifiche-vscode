@@ -1,6 +1,14 @@
 **
 !package.json
 !README.md
+!CHANGELOG.md
+!SUPPORT.md
+!docs/README.md
+!docs/guida/**
+!docs/riferimento/**
+!docs/risoluzione-problemi.md
+!docs/uso-con-agenti.md
+!docs/esempi/**
 !LICENSE
 !THIRD-PARTY-NOTICES.md
 !dist/**
