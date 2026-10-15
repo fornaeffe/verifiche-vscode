@@ -60,6 +60,18 @@ Usare fixture sintetiche e profili isolati per le prove tecniche.
 
 ## Completato
 
+- [x] **Gruppi riordinabili casualmente** (15 ottobre 2026):
+  `ordine_casuale` booleano, figli diretti e sottogruppi atomici; riordino
+  indipendente dei gruppi annidati abilitati, su copia dello snapshot.
+  Export originale, casuale con nuovo seme o riuso di un seme; riepilogo con
+  **Copia seme**, PDF `traccia-<id>.seme-<seme>.pdf` e CLI `--shuffle`/`--seed`.
+  Aggiornati manuale, riferimento, CLI, architettura, piano e changelog.
+  Superati 38 test, build, controllo documentale ed Extension Host VS Code
+  1.100.0 su Windows, inclusi menu reale con CDP, annullamento, validazione,
+  buffer non salvati, nomi PDF e sovrascrittura. Verificata anche la CLI reale;
+  testo e resa dei PDF sintetici controllati: ordine, numerazione, omissioni,
+  sottogruppi, A4 e totale invariato. Nessun nuovo VSIX, installazione nel profilo
+  ordinario, collaudo manuale dell’utilizzatore, commit o push.
 - [x] **Preparazione della prima release pubblica 0.1.4** (15 ottobre 2026):
   changelog unificato e datato, versioni di manifest e lockfile coerenti.
   Eseguiti `npm ci`, controllo documentale, 31 test, build e suite Extension Host

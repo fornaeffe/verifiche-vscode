@@ -57,6 +57,13 @@ seguono la propria radice workspace; la chiusura del pannello libera i suoi rife
 `pdf.ts` stampa tramite Chromium un insieme già acquisito di sorgenti e risorse.
 Il server HTTP è temporaneo, su loopback e porta casuale; serve soltanto le risorse
 precaricate. Non occorre avviare un'applicazione web separata.
+`random-order.ts` prepara una copia dell’albero per traccia: Fisher–Yates sui
+figli diretti dei gruppi abilitati, flusso SHA-256 v1 separato per seme, ID traccia
+e percorso originale del gruppo, con rejection sampling. Non muta lo snapshot
+né il sorgente. Il seme di 16 cifre esadecimali entra nel nome dei PDF casuali;
+il flusso v1 deve restare stabile per riprodurre i semi precedenti.
+`pdf-order-ui.ts` raccoglie ordine originale, seme nuovo o riutilizzato prima
+della stampa; i dialoghi sono iniettabili nei test Extension Host.
 Il comando passa esplicitamente il CSS della radice workspace, come l'anteprima;
 la CLI conserva la ricerca nel genitore dei contenuti. Il CSS incluso in `media`
 è anche il modello copiato durante il setup e il ripiego quando manca quello dei dati.
@@ -88,6 +95,9 @@ Scaricano VS Code 1.100.0, oppure usano il percorso
 `VSCODE_EXECUTABLE` se impostato. Verificano anche il selettore nella webview reale
 attraverso una porta CDP locale effimera, usata soltanto dai test. Screenshot e log
 sono esclusi da Git. F5 usa invece la configurazione in `.vscode/launch.json`.
+La suite prova anche export casuali con gruppi annidati e buffer non salvati,
+annullamenti, validazione/riuso dei semi e nomi con sovrascrittura; con CDP apre
+il menu reale, lo annulla e inserisce un seme verificando la validazione.
 La suite controlla anche i refresh e le diagnosi effettivamente invocati: dipendenze
 modificate, file estranei, buffer non salvati, risorse mancanti e radici distinte.
 La suite prova anche setup nuovo/vuoto, annullamenti, collisioni, Git facoltativo e

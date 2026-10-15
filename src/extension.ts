@@ -9,7 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
   const preview = new Preview(context),
     providers = new Providers(context);
   providers.register();
-  registerCommands(context, preview);
+  const commands = registerCommands(context, preview);
   context.subscriptions.push(preview, { dispose: clearRepositories });
   let timer: ReturnType<typeof setTimeout> | undefined;
   const documents = () =>
@@ -111,6 +111,7 @@ export function activate(context: vscode.ExtensionContext) {
     preview,
     providers,
     transfers: new Transfers(),
+    pdf: commands.pdf,
     setup: (dialogs: SetupUI, gitInit?: (root: string) => Promise<void>) =>
       runSetup(
         context.asAbsolutePath("media/predefinito.css"),

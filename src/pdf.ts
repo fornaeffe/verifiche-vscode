@@ -4,6 +4,12 @@ import http from "node:http";
 import { chromium } from "playwright";
 import { render, safe } from "./core";
 import { Snapshot, relativeId } from "./repository";
+import {
+  normalizeSeed,
+  orderForTrace,
+  pdfFilename,
+  PDFOrder,
+} from "./random-order";
 
 export async function exportPDF(
   snapshot: Snapshot,
@@ -11,10 +17,19 @@ export async function exportPDF(
   assetRoot: string,
   outputRoot = path.join(snapshot.base, "..", "output"),
   styleFile = path.join(snapshot.base, "..", "stili/predefinito.css"),
+  options: PDFOrder = {},
 ) {
+  const seed =
+    options.seed === undefined ? undefined : normalizeSeed(options.seed);
   const pages = traces.map((t) => ({
     trace: t,
-    ...render(snapshot.exam, t, snapshot.library),
+    ...render(
+      seed === undefined
+        ? snapshot.exam
+        : orderForTrace(snapshot.exam, t, seed),
+      t,
+      snapshot.library,
+    ),
   }));
   const resources = new Map<string, Buffer>();
   const load = async (url: string, file: string) => {
@@ -118,7 +133,10 @@ export async function exportPDF(
         path.join(snapshot.base, "verifiche"),
         snapshot.file,
       );
-      const file = safe(outputRoot, `${id}/traccia-${pages[i].trace}.pdf`);
+      const file = safe(
+        outputRoot,
+        `${id}/${pdfFilename(pages[i].trace, seed)}`,
+      );
       await fs.mkdir(path.dirname(file), { recursive: true });
       const buffer = await page.pdf({
         format: "A4",

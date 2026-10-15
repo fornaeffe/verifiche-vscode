@@ -33,6 +33,10 @@ dati pertinente aperto; per l’export apri la verifica e controlla la traccia n
 Le azioni contestuali possono passare già la traccia o la variante; dalla Palette
 il comando può chiedere una scelta. Il cursore e il documento attivo sono quindi rilevanti.
 
+I due comandi PDF offrono la [scelta dell’ordine](../guida/anteprima-pdf.md#esportare-con-ordine-casuale)
+quando sono presenti gruppi abilitati: originale, casuale con nuovo seme oppure
+riuso di un seme. Il riepilogo del riordino offre **Copia seme**.
+
 ## Scorciatoie e funzioni native
 
 | Azione                          | Windows/Linux              | macOS                    |

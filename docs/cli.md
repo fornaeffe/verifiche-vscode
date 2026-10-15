@@ -22,6 +22,8 @@ fra virgolette. Il percorso dati può essere assoluto o relativo alla directory 
 node dist/cli.js validate /percorso/dati
 node dist/cli.js pdf /percorso/dati contenuti/verifiche/esempio.yaml prova
 node dist/cli.js pdf /percorso/dati contenuti/verifiche/esempio.yaml tutte
+node dist/cli.js pdf /percorso/dati contenuti/verifiche/esempio.yaml tutte --shuffle
+node dist/cli.js pdf /percorso/dati contenuti/verifiche/esempio.yaml prova --seed 7f3a9c2d84b610ef
 node dist/cli.js migrate /percorso/dati --report /percorso/report.json
 node dist/cli.js migrate /percorso/dati --apply --report /percorso/report.json
 ```
@@ -31,6 +33,16 @@ node dist/cli.js migrate /percorso/dati --apply --report /percorso/report.json
 | `validate CARTELLA_DATI`                           | Legge esercizi e verifiche; scrive risultati JSON per verifica su stdout, errori di lettura/analisi su stderr. Exit code 1 se rileva errori, 0 altrimenti; gli avvisi non causano fallimento |
 | `pdf CARTELLA_DATI FILE_VERIFICA [TRACCIA\|tutte]` | Genera i PDF e stampa i percorsi. Se la traccia è omessa usa la prima dichiarata. Gli errori causano exit code 1                                                                             |
 | `migrate CARTELLA_DATI [--apply] [--report FILE]`  | Converte gli ID precedenti in percorsi. Senza `--apply` simula; il report è scritto solo se richiesto. Riepilogo JSON con conteggi e modalità                                                |
+
+Il PDF mantiene l’ordine originale senza opzioni. `--shuffle` genera un seme
+automatico; `--seed SEME` attiva il riordino con il seme indicato, anche senza
+`--shuffle`. Se usati insieme prevale il seme esplicito. Le opzioni possono
+precedere o seguire file e traccia; opzioni sconosciute o ripetute sono errori.
+Il seme è validato prima delle scritture e stampato insieme ai percorsi prodotti.
+Formato del seme, gruppi coinvolti e nomi PDF seguono le stesse
+[regole dell’estensione](guida/anteprima-pdf.md#esportare-con-ordine-casuale).
+Anche senza gruppi abilitati, un seme richiesto esplicitamente compare nel nome
+del PDF; in quel caso l’ordine rimane invariato. La CLI non apre dialoghi.
 
 La migrazione rimuove gli ID dal front matter e aggiorna i riferimenti; controlla
 il report, le revisioni e il confronto delle tracce prima di applicare. Conserva

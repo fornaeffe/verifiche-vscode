@@ -36,6 +36,7 @@ import { exportPDF } from "./pdf";
 import { validate, exercise, content, type Exercise } from "./core";
 import { spawn } from "node:child_process";
 import { runSetup } from "./setup-command";
+import { choosePDFOrder, PDFOrderUI } from "./pdf-order-ui";
 
 export async function exerciseInsertion(
   doc: vscode.TextDocument,
@@ -400,7 +401,7 @@ export function registerCommands(
       edit,
     );
   });
-  const pdf = async (all: boolean) => {
+  const pdf = async (all: boolean, dialogs?: PDFOrderUI) => {
     const doc = preview.document ?? (await target());
     const loc = locate(doc.uri)!;
     if (loc.kind !== "verifiche")
@@ -408,6 +409,8 @@ export function registerCommands(
     const outputRoot = settings(doc.uri).outputDirectory(loc.root);
     const s = await repository(loc.base).snapshot(doc.uri.fsPath);
     const trace = preview.currentTrace(doc) ?? String(s.exam.tracce[0].id);
+    const order = await choosePDFOrder(s.exam, dialogs);
+    if (!order) return;
     const files = await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
@@ -420,12 +423,19 @@ export function registerCommands(
           context.asAbsolutePath("dist"),
           outputRoot,
           path.join(loc.root, "stili/predefinito.css"),
+          order,
         ),
     );
     void vscode.window
-      .showInformationMessage(`${files.length} PDF generati`, "Apri cartella")
+      .showInformationMessage(
+        `${files.length} PDF generati${order.seed ? ` — Seme: ${order.seed}` : ""}`,
+        "Apri cartella",
+        ...(order.seed ? ["Copia seme"] : []),
+      )
       .then((action) => {
-        if (action)
+        if (action === "Copia seme" && order.seed)
+          return vscode.env.clipboard.writeText(order.seed);
+        if (action === "Apri cartella")
           return vscode.commands.executeCommand(
             "revealFileInOS",
             vscode.Uri.file(files[0]),
@@ -516,4 +526,5 @@ export function registerCommands(
       },
     );
   });
+  return { pdf };
 }

@@ -1,5 +1,11 @@
 # Novità
 
+## Non rilasciato
+
+- Gruppi con `ordine_casuale: true`, anche annidati: scelta del riordino durante
+  l’export PDF, seme automatico o riutilizzato, copia del seme e nomi PDF distinti
+  per generazione. CLI con `--shuffle` e `--seed`.
+
 ## 0.1.4 — 2026-10-15
 
 Prima release pubblica.

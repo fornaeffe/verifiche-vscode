@@ -41,6 +41,39 @@ prima di **Tutti i PDF** controlla tutte le tracce. Anteprima ed export acquisis
 i contenuti correnti in operazioni distinte: evita modifiche simultanee a testi,
 immagini o stile mentre esporti e controlla il PDF finale.
 
+## Esportare con ordine casuale
+
+Se la verifica contiene [gruppi con `ordine_casuale: true`](../riferimento/formato-verifiche.md#gruppi-riordinabili-casualmente),
+**Esporta PDF** e **Tutti i PDF** chiedono come ordinarli:
+
+- **Mantieni l’ordine del YAML** (prima scelta): esporta nell’ordine scritto.
+- **Riordina casualmente i gruppi abilitati**: genera un nuovo seme per l’operazione.
+- **Ripeti un riordino usando un seme…**: richiede il seme di una generazione precedente.
+
+Esc nel menu o nell’inserimento del seme annulla senza generare PDF.
+Se non ci sono gruppi abilitati il menu non appare. L’anteprima continua a mostrare
+l’ordine del YAML; controlla il PDF finale per la disposizione casuale.
+
+Il seme contiene esattamente 16 caratteri esadecimali (`0`–`9`, `a`–`f`);
+sono accettate anche maiuscole, normalizzate in minuscole. Un unico seme vale
+per tutta l’operazione, inclusa la traccia pubblica. Ogni traccia e ciascun gruppo
+sono mescolati indipendentemente. A parità di sorgenti, traccia e seme l’ordine è
+riproducibile, anche passando da **Tutti i PDF** all’export della singola traccia.
+Semi diversi possono comunque produrre lo stesso ordine; modificare contenuti,
+struttura o ID della traccia può cambiare il risultato con il medesimo seme.
+
+| Ordine scelto | Nome del PDF della traccia `1` |
+| --- | --- |
+| Originale | `traccia-1.pdf` |
+| Casuale, seme automatico o inserito | `traccia-1.seme-7f3a9c2d84b610ef.pdf` |
+
+Le cartelle di destinazione restano quelle configurate. Un nuovo seme conserva
+i file delle generazioni precedenti; stessa traccia e stesso seme sovrascrivono
+il PDF omonimo. L’export originale continua a sovrascrivere `traccia-1.pdf`.
+Il riepilogo mostra il seme e offre **Copia seme**; puoi recuperarlo anche dal
+nome del PDF. Conserva anche una revisione dei sorgenti per riprodurre un ordine
+dopo modifiche alla verifica.
+
 ## Personalizzare lo stile
 
 Anteprima ed export cercano `stili/predefinito.css` nella radice workspace, anche

@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { Repository, enumerate } from "../src/repository";
 import { content, exercise, exam, render, validate } from "../src/core";
+import YAML from "yaml";
 
 test("gli esempi pubblici rendono tutti i tipi e due tracce da 10 punti", async () => {
   const base = path.resolve("docs/esempi/contenuti");
@@ -65,4 +66,27 @@ test("il tutorial e l'esempio completo del riferimento risolvono le varianti", a
   );
   const source = /```yaml\r?\n([\s\S]*?)```/.exec(reference)![1];
   assert.deepEqual(validate(exam(source), library).errors, []);
+});
+
+test("l’esempio dei gruppi casuali risolve gli esercizi e le varianti annidate", async () => {
+  const reference = await fs.readFile(
+    "docs/riferimento/formato-verifiche.md",
+    "utf8",
+  );
+  const section = reference.split("#### Gruppi riordinabili casualmente")[1];
+  const blocks = YAML.parse(/```yaml\r?\n([\s\S]*?)```/.exec(section)![1]);
+  const base = path.resolve("docs/esempi/contenuti");
+  const snapshot = await new Repository(base).snapshot(
+    path.join(base, "verifiche/dimostrativa.yaml"),
+  );
+  const v = exam(
+    YAML.stringify({
+      titolo: "Esempio gruppi casuali",
+      tracce: [{ id: "prova" }],
+      blocchi: blocks,
+    }),
+  );
+  const result = validate(v, snapshot.library);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.tracce[0].count, 3);
 });

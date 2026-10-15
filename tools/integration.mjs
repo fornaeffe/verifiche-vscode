@@ -205,6 +205,37 @@ try {
       if (!(await findTarget("#pdf")))
         throw Error("Anteprima verifica non ripristinata dopo la scelta");
       await fs.writeFile(path.join(temp, "ui-done-select"), "ok");
+      const waitMarker = async (name) => {
+        const deadline = Date.now() + 60000;
+        while (Date.now() < deadline) {
+          try {
+            await fs.access(path.join(temp, name));
+            return;
+          } catch {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+        }
+        throw Error("Timeout: " + name);
+      };
+      await waitMarker("ui-ready-random-cancel");
+      await page
+        .getByText("Mantieni l’ordine del YAML", { exact: true })
+        .waitFor();
+      await page.keyboard.press("Escape");
+      await waitMarker("ui-ready-random-seed");
+      await page
+        .getByText("Ripeti un riordino usando un seme…", { exact: true })
+        .click();
+      const input = page.locator(".quick-input-widget input");
+      await input.fill("non-valido");
+      await page
+        .getByText(
+          "Il seme deve contenere esattamente 16 caratteri esadecimali (0–9, a–f).",
+          { exact: true },
+        )
+        .waitFor();
+      await input.fill("7F3A9C2D84B610EF");
+      await page.keyboard.press("Enter");
     } catch (e) {
       await Promise.all([
         fs.writeFile(path.join(temp, "ui-done-cancel"), String(e)),

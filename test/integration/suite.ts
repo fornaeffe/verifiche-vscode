@@ -7,6 +7,7 @@ import { checkSettings } from "./settings";
 import { checkDependencies } from "./dependencies";
 import { checkSetup } from "./setup";
 import { checkStyleDocuments } from "./styles";
+import { checkRandomOrder } from "./random-order";
 
 export async function run() {
   const root = process.env.VERIFICHE_TEST_ROOT!;
@@ -425,6 +426,7 @@ blocchi:
   await checkSettings(api.preview);
   await checkStyleDocuments(api.preview, extension.extensionPath);
   await checkSetup(extension, api);
+  await checkRandomOrder(api);
   api.preview.dispose();
   console.log(
     "PASS: activation, chemical formula command/keyboard/cursor/undo/redo and default binding conflicts, reduced CodeLens, contextual Code Actions, picker cancel/select without duplicate editors, trace auto-assignment/unsaved buffers/exhaustion/undo/redo/read errors, definition, template, focus preview, exercise drop/default points/settings/undo/redo, image paste, rename references",

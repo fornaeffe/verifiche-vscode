@@ -22,6 +22,11 @@ Per riordinare usa il testo YAML, mantenendo l’indentazione. La numerazione de
 esercizi è continua anche attraverso i gruppi. Le modifiche dei comandi strutturali
 si annullano con il normale Undo di VS Code.
 
+Per consentire il riordino casuale dei figli di un gruppo aggiungi
+[`ordine_casuale: true`](../riferimento/formato-verifiche.md#gruppi-riordinabili-casualmente)
+dentro `gruppo`. Scegli se attivarlo quando esporti il PDF; usa sottogruppi per
+tenere unite consegne ed esercizi.
+
 Per inserire un esercizio scegli un file esistente o **Nuovo esercizio…**;
 nel secondo caso seleziona nome e cartella nella finestra di salvataggio, all’interno
 degli esercizi della verifica. Puoi anche trascinare un file esercizio nella verifica:

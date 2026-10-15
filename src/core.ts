@@ -182,6 +182,13 @@ export function exam(source: string) {
       } else if (b.gruppo !== undefined) {
         if (!b.gruppo || typeof b.gruppo !== "object")
           throw Error("Gruppo non valido");
+        if (
+          b.gruppo.ordine_casuale !== undefined &&
+          typeof b.gruppo.ordine_casuale !== "boolean"
+        )
+          throw Error(
+            "gruppo.ordine_casuale deve essere un booleano (true o false)",
+          );
         checkScore(b.gruppo.punti);
         checkInstruction(b.gruppo.istruzioni ?? "");
         checkBlocks(b.gruppo.esercizi);

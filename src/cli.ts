@@ -4,12 +4,38 @@ import { Repository, enumerate } from "./repository";
 import { validate } from "./core";
 import { planMigration, applyMigration } from "./migration";
 import { exportPDF } from "./pdf";
+import { newSeed, normalizeSeed } from "./random-order";
+
+export function pdfArguments(args: string[]) {
+  const positional: string[] = [];
+  let shuffle = false;
+  let seed: string | undefined;
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--shuffle" && !shuffle) shuffle = true;
+    else if (arg === "--seed" && seed === undefined) {
+      if (args[i + 1] === undefined) throw Error("Manca il valore di --seed");
+      seed = normalizeSeed(args[++i]);
+    } else if (arg.startsWith("--"))
+      throw Error("Opzione PDF non valida o ripetuta: " + arg);
+    else positional.push(arg);
+  }
+  if (!positional.length || positional.length > 2)
+    throw Error(
+      "Uso: cli pdf CARTELLA_DATI FILE_VERIFICA [TRACCIA|tutte] [--shuffle] [--seed SEME]",
+    );
+  return {
+    file: positional[0],
+    trace: positional[1],
+    seed: seed ?? (shuffle ? newSeed() : undefined),
+  };
+}
 
 export async function main(args = process.argv.slice(2)) {
   const [command, root, ...rest] = args;
   if (!root || !["validate", "migrate", "pdf"].includes(command))
     throw Error(
-      "Uso: cli validate|migrate|pdf CARTELLA_DATI [FILE_VERIFICA TRACCIA|tutte] [--apply] [--report FILE]",
+      "Uso: cli validate|migrate|pdf CARTELLA_DATI [FILE_VERIFICA TRACCIA|tutte] [--shuffle] [--seed SEME] [--apply] [--report FILE]",
     );
   const base = path.resolve(root, "contenuti");
   if (command === "migrate") {
@@ -73,13 +99,23 @@ export async function main(args = process.argv.slice(2)) {
     if (failures) process.exitCode = 1;
     return;
   }
-  const file = path.resolve(root, rest[0]),
+  const options = pdfArguments(rest);
+  const file = path.resolve(root, options.file),
     s = await repo.snapshot(file);
   const traces =
-    rest[1] === "tutte"
+    options.trace === "tutte"
       ? s.exam.tracce.map((t: any) => String(t.id))
-      : [rest[1] ?? String(s.exam.tracce[0].id)];
-  console.log(await exportPDF(s, traces, path.resolve(__dirname, "../dist")));
+      : [options.trace ?? String(s.exam.tracce[0].id)];
+  const outputs = await exportPDF(
+    s,
+    traces,
+    path.resolve(__dirname, "../dist"),
+    undefined,
+    undefined,
+    { seed: options.seed },
+  );
+  if (options.seed) console.log("Seme: " + options.seed);
+  console.log(outputs);
 }
 if (require.main === module)
   void main().catch((e) => {

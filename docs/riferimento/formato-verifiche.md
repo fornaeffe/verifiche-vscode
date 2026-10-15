@@ -106,6 +106,46 @@ compresi altri gruppi. `istruzioni` è facoltativo e usa le forme descritte sott
 si scrive in `gruppo.punti`: un eventuale `punti` dentro `gruppo.istruzioni`
 non contribuisce al totale.
 
+#### Gruppi riordinabili casualmente
+
+Aggiungi `ordine_casuale: true` dentro `gruppo` per consentire il riordino dei
+suoi figli diretti durante l’esportazione PDF. Il campo è facoltativo e accetta
+solo booleani; assente oppure `false` mantiene l’ordine scritto.
+
+```yaml
+- gruppo:
+    ordine_casuale: true
+    istruzioni: Rispondi alle domande in qualsiasi ordine.
+    esercizi:
+      - esercizio:
+          id: scienze/acqua
+          versioni: { default: base }
+      - gruppo:
+          istruzioni: Rispondi prima alla domanda e poi scegli un’alternativa.
+          esercizi:
+            - esercizio:
+                id: scienze/acqua
+                versioni: { default: seconda }
+            - esercizio:
+                id: scienze/scelta
+                versioni: { default: base }
+```
+
+Nell’esempio il sottogruppo si sposta come un blocco unico, con le proprie
+istruzioni e i due esercizi nell’ordine scritto. Se dichiara a sua volta
+`ordine_casuale: true`, anche i suoi figli sono riordinati, indipendentemente
+dal gruppo esterno. Un gruppo ordinario può contenere gruppi casuali.
+
+Partecipano al riordino tutti i tipi di figlio, comprese istruzioni autonome,
+contenuti e salti pagina. Per tenere unita una consegna alle sue domande usa
+un sottogruppo; per conservare un confine di pagina lascia il salto fuori dal
+gruppo casuale. Le istruzioni del gruppo precedono sempre i suoi figli.
+Numerazione, varianti assegnate, omissioni e punteggi seguono i blocchi risultanti.
+
+La proprietà abilita la scelta, senza mescolare il file né l’anteprima ordinaria.
+Per attivazione, semi riproducibili e nomi dei file vedi
+[Esportare con ordine casuale](../guida/anteprima-pdf.md#esportare-con-ordine-casuale).
+
 ### Istruzioni e contenuto
 
 Entrambi accettano una stringa Markdown oppure un oggetto con `testo` e/o `versioni`.
