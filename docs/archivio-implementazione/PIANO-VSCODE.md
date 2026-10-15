@@ -332,6 +332,14 @@ Per riprendere il lavoro:
   changelog «Non rilasciato»: nessuna nuova pubblicazione, installazione nel profilo
   ordinario, modifica ai dati privati, commit o push. Collaudi precedenti aperti nel TODO.
 
+- Preparazione release 0.1.5, 15 ottobre 2026: gruppi riordinabili casualmente
+  inclusi nel VSIX, versione e changelog aggiornati. Superati 38 test, build,
+  controllo documentale ed Extension Host su Windows VS Code 1.100.0, anche
+  sul pacchetto estratto con menu reali, semi e PDF. Verificati contenuti e
+  manuale distribuito; la CLI inclusa valida gli esempi sintetici. Dettagli e
+  collaudi manuali ancora aperti nel TODO. Nessuna installazione ordinaria,
+  pubblicazione, creazione di tag, commit o push.
+
 ## 10. Riferimenti tecnici verificati nella valutazione
 
 - [Funzionalità linguistiche VS Code](https://code.visualstudio.com/api/language-extensions/programmatic-language-features): CodeLens, azioni, diagnostica, navigazione.

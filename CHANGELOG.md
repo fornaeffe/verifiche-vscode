@@ -1,6 +1,6 @@
 # Novità
 
-## Non rilasciato
+## 0.1.5 — 2026-10-15
 
 - Gruppi con `ordine_casuale: true`, anche annidati: scelta del riordino durante
   l’export PDF, seme automatico o riutilizzato, copia del seme e nomi PDF distinti

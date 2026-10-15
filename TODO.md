@@ -55,11 +55,23 @@ Usare fixture sintetiche e profili isolati per le prove tecniche.
   funzionamento offline dopo il setup. I PDF precedenti usavano Chromium già presente.
 - [ ] **Scorciatoia chimica e pacchetto aggiornato**: registrare la prova sulla
   tastiera fisica dell’utilizzatore e su macOS/Linux; installare il VSIX aggiornato
-  e verificarlo nel profilo ordinario. Creato il pacchetto 0.1.4 durante la consegna
-  del setup dati; i test Windows con CDP sono riusciti, senza installazione nel profilo ordinario.
+  e verificarlo nel profilo ordinario. Creato il pacchetto 0.1.5 durante la preparazione
+  della release; i test Windows con CDP sono riusciti anche sul VSIX estratto,
+  senza installazione nel profilo ordinario.
 
 ## Completato
 
+- [x] **Preparazione release 0.1.5** (15 ottobre 2026): versione coerente in
+  manifest e lockfile, changelog datato per i gruppi riordinabili casualmente.
+  Eseguiti `npm ci`, controllo documentale, 38 test, build ed Extension Host
+  VS Code 1.100.0 su Windows. Generato `verifiche-vscode-0.1.5.vsix` e verificati
+  contenuti, versione e collegamenti del manuale distribuito; superata l’intera
+  suite anche sul pacchetto estratto, inclusi menu di riordino reali, semi,
+  nomi PDF, webview e controlli Chromium schermo/stampa. La CLI del pacchetto
+  valida gli esempi sintetici senza errori o avvisi. `npm audit` conferma la
+  vulnerabilità bassa nota di KaTeX (GHSA-238p-pmpm-9mq7); dipendenze invariate.
+  Restano aperti i collaudi manuali sopra. Nessuna installazione nel profilo
+  ordinario, prova macOS/Linux, pubblicazione, creazione di tag, commit o push.
 - [x] **Gruppi riordinabili casualmente** (15 ottobre 2026):
   `ordine_casuale` booleano, figli diretti e sottogruppi atomici; riordino
   indipendente dei gruppi annidati abilitati, su copia dello snapshot.
