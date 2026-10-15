@@ -60,6 +60,16 @@ Usare fixture sintetiche e profili isolati per le prove tecniche.
 
 ## Completato
 
+- [x] **Preparazione della prima release pubblica 0.1.4** (15 ottobre 2026):
+  changelog unificato e datato, versioni di manifest e lockfile coerenti.
+  Eseguiti `npm ci`, controllo documentale, 31 test, build e suite Extension Host
+  VS Code 1.100.0 su Windows. Ricreato il VSIX, conservando il precedente;
+  verificati i file inclusi e i collegamenti del manuale, ripetuta con successo
+  la suite sul pacchetto estratto, inclusi webview, PDF e controlli Chromium
+  schermo/stampa. `npm audit` segnala una vulnerabilità bassa in KaTeX
+  (GHSA-238p-pmpm-9mq7); dipendenze non modificate in questa preparazione.
+  Restano aperti i collaudi manuali sopra elencati. Nessuna installazione manuale,
+  prova macOS/Linux, pubblicazione, creazione di tag, commit o push eseguiti.
 - [x] **Manuale d’uso e guida offline**: README sintetico, tutorial, guide per
   compito, riferimento Markdown/YAML e comandi/settings, problemi, uso degli
   agenti sui contenuti ed esempi dei cinque tipi. Comando **Verifiche: Apri guida**
